@@ -33,11 +33,6 @@ def custom_rag_engine(vector_store):
         "问题: {query_str}\n"
         "答案: "
     )
-    qa_prompt_tmpl = PromptTemplate(qa_prompt_tmpl_str)
-    
-    query_engine.update_prompts(
-        {"response_synthesizer:text_qa_template": qa_prompt_tmpl}
-    )
     message_templates = [
         ChatMessage(content="你是一个严谨的历史知识问答智能体，你会仔细阅读历史材料并给出准确的回答,你的回答都会非常准确，因为你在回答的之后，使用在[]内给出原文用来支撑你回答的证据.", role=MessageRole.SYSTEM),
         ChatMessage(
@@ -46,10 +41,21 @@ def custom_rag_engine(vector_store):
         ),
     ]
     chat_template = ChatPromptTemplate(message_templates=message_templates)
-    
+    refine_prompt_tmpl_str = ( 
+           "你是一个历史知识回答修正机器人，你严格按以下方式工作"
+            "只有原答案为不知道时才进行修正,\n"
+            "修正的时候为了体现你的精准和客观，你非常喜欢使用[]将原文展示出来.\n"
+            "如果感到疑惑的时候，就回复原答案，因为它已经是一个回答了。"
+            "新的知识: {context_msg}\n"
+            "问题: {query_str}\n"
+            "原答案: {existing_answer}\n"
+            "新答案: "
+     )
+       
     query_engine.update_prompts(
         {"response_synthesizer:text_qa_template": chat_template}
     )
+    query_engine._response_synthesizer._refine_template.conditionals[0][1].message_templates[0].content = refine_prompt_tmpl_str
     return query_engine
 
 
@@ -69,7 +75,7 @@ if __name__ == '__main__':
         set_global_service_context(service_context)
     
     query_engine = custom_rag_engine(vector_store)
-    query = '关公刮骨疗毒是真的吗'
+    query = '详细描述姜维和钟会的计划?'
 
     if retrieve_debug is True:
         contexts = query_engine.retrieve(query)
