@@ -21,10 +21,7 @@ from llama_index.callbacks import (
 )
 from llama_index.prompts import ChatPromptTemplate, ChatMessage, MessageRole
 import llama_index
-from  pymilvus import utility
-from common import dataset, index_name, retrieve_debug, top_k, get_index_name, sanguo_augment, rerank_k
-from bge_ranker import BGERerank  
-from utils import SanguoAugmenter
+from common import dataset, index_name, retrieve_debug, top_k, get_index_name, rerank_k
 
 def custom_rag_engine(vector_store):
     index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
@@ -89,22 +86,12 @@ if __name__ == '__main__':
         
         llama_debug = LlamaDebugHandler(print_trace_on_end=True)
         callback_manager = CallbackManager([llama_debug])
-        llm = OpenAI(temperature=0.1, model="gpt-4")
+        llm = OpenAI(temperature=0.05, model="gpt-4")
         service_context = ServiceContext.from_defaults(llm=llm,embed_model=embed_model, callback_manager=callback_manager)
         set_global_service_context(service_context)
     
     query_engine = custom_rag_engine(vector_store)
-    query = '华雄是被谁杀死的?'
-    
-    if dataset_name == 'sanguo' and sanguo_augment is True:
-        augmenter = SanguoAugmenter()
-        augmenter.index_doc()
-
-        response = augmenter.query(query)
-        if response is not None:
-            print('问题:', query)
-            print('答案:', response)
-            exit()
+    query = '华雄是谁杀死的？'
     
     if retrieve_debug is True:
         contexts = query_engine.retrieve(QueryBundle(query))

@@ -11,7 +11,6 @@ from llama_index.embeddings import HuggingFaceEmbedding
 from llama_index.node_parser.text import SentenceWindowNodeParser
 
 import llama_index
-from  pymilvus import utility
 from common import dataset, index_name, get_index_name
 
 
@@ -19,7 +18,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--corpus', choices=['sanguo', 'history24'], help='Specify the corpus to process (sanguo or history24).')
     args = parser.parse_args()
-
     dataset_name = args.corpus
     documents = SimpleDirectoryReader(dataset[dataset_name]['path']).load_data()
 

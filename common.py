@@ -6,8 +6,6 @@ dataset['history24'] = {'path': "./data/history_24/", 'name':'history24' }
 #index_name = 'openai'
 index_name = 'bge_base'
 
-sanguo_augment=True
-
 def get_index_name(dataset_name):
     indices = {}
     indices['openai'] = {'dim':1536, 'collection': f'openai_{dataset[dataset_name]["name"]}'}
