@@ -1,7 +1,8 @@
 # 史料RAG
 
-本项目展示如何使用LlamaIndex使用基于向量搜索的方式搭建一个中国历史知识的RAG(检索增强生成系统)系统,这种系统可以根据询问来从历史语料库中检索到相关的历史资料片段，从而使模型给出更可靠的回答。有两种具体的构建方案，一种采用在本地搭建向量数据库的Milvus方案，一种是采用在云端进行索引构建的Zilliz Pipeline方案。
+本项目展示如何使用[向量数据库](https://zilliz.com.cn/)基于[RAG(检索增强生成)](https://zhuanlan.zhihu.com/p/643953182)方式搭建一个中国历史问答应用。这个应用接受用户的询问，从历史语料库中检索相关的历史资料片段，利用大语言模型给出较为可靠的回答。相比于直接询问大模型，这种方式具有回答准确率高，不容易产生大模型的“幻觉”问题等优点。
 
+本项目实现了两种使用方式，“Milvus方案“在本地启动一个Milvus向量数据库的Docker服务，使用LlamaIndex框架实现RAG的业务逻辑。“云服务方案”使用云上的知识库检索服务Zilliz Cloud Pipelines，该服务包括了RAG中文档切片、向量化、向量检索等功能。两种方案均采使用OpenAI的GPT大语言模型。
 ## 依赖:
     OpenAI token
     Milvus==2.3.3
@@ -36,6 +37,7 @@ export OPENAI_API_KEY=sk-xxxxxxxx你的tokenxxxxxxxxx
 ```bash
 cd db
 sudo docker compose up -d
+cd ..
 ```
 
 ### 步骤3: 安装依赖
