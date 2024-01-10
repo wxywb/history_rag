@@ -42,11 +42,12 @@ cd ..
 ```
 
 ### 步骤3: 安装Python依赖项
-**（可选）**可能会有python依赖会和现有环境产生冲突，为了解决这一点我们可以使用`virtualenv`建立一个新的依赖环境，退出该环境时使用`deactivate`。
+(**可选**)可能会有python依赖会和现有环境产生冲突，为了解决这一点我们可以使用`virtualenv`建立一个新的依赖环境，退出该环境时使用`deactivate`。
 ```bash
 virtualenv rag
 source rag/bin/activate
 ```
+现在安装所需依赖
 ```bash
 pip install -r requirements.txt
 ```
@@ -86,11 +87,12 @@ export ZILLIZ_CLUSTER_ID=右边红框的信息
 ```
 
 ### 步骤3: 安装Python依赖项
-**（可选）**可能会有python依赖会和现有环境产生冲突，为了解决这一点我们可以使用`virtualenv`建立一个新的依赖环境，退出该环境时使用`deactivate`。
+(**可选**)可能会有python依赖会和现有环境产生冲突，为了解决这一点我们可以使用`virtualenv`建立一个新的依赖环境，退出该环境时使用`deactivate`。
 ```bash
 virtualenv rag
 source rag/bin/activate
 ```
+现在安装所需依赖
 ```bash
 pip install -r requirements.txt
 ```
