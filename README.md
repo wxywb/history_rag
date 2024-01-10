@@ -28,7 +28,7 @@
     
 ### 步骤1: 配置OpenAI API key
 
-项目中使用OpenAI的GPT作为大语言模型，在开始之前，配置环境变量存放 OpenAI API Key (格式类似于sk-xxxxxxxx)。如果没有，请参考[OpenAI官方文档](https://platform.openai.com/docs/quickstart?context=curl]获取。在terminal中输入以下命令添加环境变量：
+项目中使用OpenAI的GPT作为大语言模型，在开始之前，配置环境变量存放 OpenAI API Key (格式类似于sk-xxxxxxxx)。如果没有，请参考[OpenAI官方文档](https://platform.openai.com/docs/quickstart?context=curl)获取。在terminal中输入以下命令添加环境变量：
 ```bash
 export OPENAI_API_KEY='your-api-key-here'
 ```
@@ -42,6 +42,11 @@ cd ..
 ```
 
 ### 步骤3: 安装Python依赖项
+**（可选）**可能会有python依赖会和现有环境产生冲突，为了解决这一点我们可以使用`virtualenv`建立一个新的依赖环境，退出该环境时使用`deactivate`。
+```bash
+virtualenv rag
+source rag/bin/activate
+```
 ```bash
 pip install -r requirements.txt
 ```
@@ -65,7 +70,7 @@ ask
     
 ### 步骤1: 配置OpenAI API key
 
-项目中使用OpenAI的GPT作为大语言模型，在开始之前，配置环境变量存放 OpenAI API Key (格式类似于sk-xxxxxxxx)。如果没有，请参考[OpenAI官方文档](https://platform.openai.com/docs/quickstart?context=curl]获取。在terminal中输入以下命令添加环境变量：
+项目中使用OpenAI的GPT作为大语言模型，在开始之前，配置环境变量存放 OpenAI API Key (格式类似于sk-xxxxxxxx)。如果没有，请参考[OpenAI官方文档](https://platform.openai.com/docs/quickstart?context=curl)获取。在terminal中输入以下命令添加环境变量：
 ```bash
 export OPENAI_API_KEY='your-api-key-here'
 ```
@@ -81,7 +86,11 @@ export ZILLIZ_CLUSTER_ID=右边红框的信息
 ```
 
 ### 步骤3: 安装Python依赖项
-
+**（可选）**可能会有python依赖会和现有环境产生冲突，为了解决这一点我们可以使用`virtualenv`建立一个新的依赖环境，退出该环境时使用`deactivate`。
+```bash
+virtualenv rag
+source rag/bin/activate
+```
 ```bash
 pip install -r requirements.txt
 ```
