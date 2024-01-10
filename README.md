@@ -2,7 +2,8 @@
 
 本项目展示如何使用[向量数据库](https://zilliz.com.cn/)基于[RAG(检索增强生成)](https://zhuanlan.zhihu.com/p/643953182)方式搭建一个中国历史问答应用。这个应用接受用户的询问，从历史语料库中检索相关的历史资料片段，利用大语言模型给出较为可靠的回答。相比于直接询问大模型，这种方式具有回答准确率高，不容易产生大模型的“幻觉”问题等优点。
 
-本项目实现了两种使用方式，“Milvus方案“在本地启动一个Milvus向量数据库的Docker服务，使用LlamaIndex框架实现RAG的业务逻辑。“云服务方案”使用云上的知识库检索服务Zilliz Cloud Pipelines，该服务包括了RAG中文档切片、向量化、向量检索等功能。两种方案均采使用OpenAI的GPT大语言模型。
+本项目实现了两种使用方式，“Milvus方案“在本地启动一个Milvus向量数据库的Docker服务，使用LlamaIndex框架和本地`BAAI/bge-base-zh-v1.5`Embedding模型实现RAG的业务逻辑。“云服务方案”使用云上的知识库检索服务Zilliz Cloud Pipelines，该服务包括了RAG中文档切片、向量化、向量检索等功能。两种方案均使用OpenAI的GPT作为大语言模型。
+
 ## 依赖:
     OpenAI token
     Milvus==2.3.3
@@ -25,28 +26,28 @@
 
 ## Milvus方案
     
-### 步骤1: 获取OpenAI Token
+### 步骤1: 配置OpenAI API key
 
-在开始之前，确保你有有效的OpenAI token。如果没有，请参考OpenAI的文档获取。并在环境变量中添加
+项目中使用OpenAI的GPT作为大语言模型，在开始之前，配置环境变量存放 OpenAI API Key (格式类似于sk-xxxxxxxx)。如果没有，请参考[OpenAI官方文档](https://platform.openai.com/docs/quickstart?context=curl]获取。在terminal中输入以下命令添加环境变量：
 ```bash
-export OPENAI_API_KEY=sk-xxxxxxxx你的tokenxxxxxxxxx
+export OPENAI_API_KEY='your-api-key-here'
 ```
 
-### 步骤2: 安装milvus
-启动向量数据库Milvus, 默认端口为19530
+### 步骤2: 安装Milvus
+使用Docker启动向量数据库Milvus服务，使用的默认端口为19530。如果你使用Mac系统，执行以下命令前请确保Docker Desktop已经安装并运行（如何安装参考[这里](https://dockerdocs.cn/docker-for-mac/install/)）：
 ```bash
 cd db
 sudo docker compose up -d
 cd ..
 ```
 
-### 步骤3: 安装依赖
+### 步骤3: 安装Python依赖项
 ```bash
 pip install -r requirements.txt
 ```
 
-### 步骤4: 构建历史知识库
-利用文本语料库构建方便进行RAG的向量索引。执行交互程序cli.py,选择`milvus`模式，然后输入要构建的语料，`build ./history24/`会将该目录下所有文件进行索引构建，会消耗大量算力抽取向量，针对大规模语料库建议使用Pipeline方案。
+### 步骤4: 构建史料知识库
+利用文本史料构建方便进行RAG的向量索引。执行交互程序cli.py,选择`milvus`模式，然后输入要构建的语料，`build ./history24/`会将该目录下所有文件进行索引构建，会消耗大量算力抽取向量，针对大规模语料库建议使用下面的“云服务方案”。
 ```bash
 python cli.py
 milvus
@@ -61,12 +62,12 @@ ask
 ```
 
 ## Zilliz Pipeline方案
+    
+### 步骤1: 配置OpenAI API key
 
-### 步骤1: 获取OpenAI Token
-
-在开始之前，确保你有有效的OpenAI token。如果没有，请参考OpenAI的文档获取。并在环境变量中添加
+项目中使用OpenAI的GPT作为大语言模型，在开始之前，配置环境变量存放 OpenAI API Key (格式类似于sk-xxxxxxxx)。如果没有，请参考[OpenAI官方文档](https://platform.openai.com/docs/quickstart?context=curl]获取。在terminal中输入以下命令添加环境变量：
 ```bash
-export OPENAI_API_KEY=sk-xxxxxxxx你的tokenxxxxxxxxx
+export OPENAI_API_KEY='your-api-key-here'
 ```
 
 ### 步骤2: 获取Pipeline的配置信息
@@ -79,13 +80,14 @@ export ZILLIZ_TOKEN=左边红框的信息
 export ZILLIZ_CLUSTER_ID=右边红框的信息
 ```
 
-### 步骤3: 安装依赖
+### 步骤3: 安装Python依赖项
+
 ```bash
 pip install -r requirements.txt
 ```
 
-### 步骤4: 构建历史知识库
-利用文本语料库构建方便进行RAG的向量索引。执行交互程序cli.py,选择`pipeline`模式，然后输入要构建的语料，`build https://github.com/wxywb/history_rag/tree/master/data/history_24/`会将该目录下所有文件进行索引构建, Pipeline方案目前仅支持Url，不支持本地文件。
+### 步骤4: 构建史料知识库
+利用文本史料构建方便进行RAG的向量索引。执行交互程序cli.py,选择`pipeline`模式，然后输入要构建的史料，`build https://github.com/wxywb/history_rag/tree/master/data/history_24/`会将该目录下所有文件进行索引构建, Pipeline方案目前仅支持Url，不支持本地文件。
 ```bash
 python cli.py
 pipeline
