@@ -19,6 +19,7 @@
 | build                  | -overwrite       | 同上，但是进行覆盖构建，已有索引将被清空       |
 | ask                     |                 | 进入问答模式，输入`quit`退出该模式             |
 | ask                     | -d               | 同上，但是开启Debug模式，将返回出来搜索出来的语料信息    |
+| remove                  |                |  删除「文件名」中倒入的索引                     |
 | quit                    |                 | 退出当前状态                                     |
 
 
@@ -98,11 +99,11 @@ pip install -r requirements.txt
 ```
 
 ### 步骤4: 构建史料知识库
-利用文本史料构建方便进行RAG的向量索引。执行交互程序cli.py,选择`pipeline`模式，然后输入要构建的史料，`build https://github.com/wxywb/history_rag/tree/master/data/history_24/`会将该目录下所有文件进行索引构建, Pipeline方案目前仅支持Url，不支持本地文件。
+利用文本史料构建方便进行RAG的向量索引。执行交互程序cli.py,选择`pipeline`模式，然后输入要构建的史料，`build https://raw.githubusercontent.com/wxywb/history_rag/master/data/history_24/`会将该目录下所有文件进行索引构建, Pipeline方案目前仅支持Url，不支持本地文件。
 ```bash
 python cli.py
 pipeline
-build https://github.com/wxywb/history_rag/tree/master/data/history_24/baihuasanguozhi.txt 
+build https://raw.githubusercontent.com/wxywb/history_rag/master/data/history_24/baihuasanguozhi.txt 
 ```
 
 ### 步骤5: 进行问题查询
