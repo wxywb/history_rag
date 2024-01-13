@@ -75,6 +75,8 @@ class CommandLine():
     def query(self, question):
         ans = self._executor.query(question)
         print(ans)
+        print('+------------------------------------------------------------------------------------------------------------------+')
+        print('\n')
 
     def build_index(self, path, overwrite):
         self._executor.build_index(path, overwrite)
