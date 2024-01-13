@@ -193,7 +193,8 @@ class MilvusExecutor(Executor):
     def query(self, question):
         if self.index is None:
             self._get_index()
-
+        if question.endswith('?') or question.endswith('？'):
+            question = question[:-1]
         if self._debug is True:
             contexts = self.query_engine.retrieve(QueryBundle(question))
             for i, context in enumerate(contexts): 
@@ -309,6 +310,8 @@ class PipelineExecutor(Executor):
     def query(self, question):
         if self.index is None:
             self.get_index()
+        if question.endswith("?") or question.endswith("？"):
+            question = question[:-1]
         response = self.query_engine.query(question)
         return response
 
