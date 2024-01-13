@@ -21,6 +21,7 @@ from llama_index.prompts import ChatPromptTemplate, ChatMessage, MessageRole, Pr
 from llama_index.postprocessor import MetadataReplacementPostProcessor
 from llama_index.postprocessor import SentenceTransformerRerank
 from llama_index.indices import ZillizCloudPipelineIndex
+from llama_index.indices.query.schema import QueryBundle
 
 from custom.history_sentence_window import HistorySentenceWindowNodeParser
 
@@ -41,9 +42,9 @@ QA_SYSTEM_PROMPT = "你是一个严谨的历史知识问答智能体，你会仔
 
 REFINE_PROMPT_TMPL_STR = ( 
     "你是一个历史知识回答修正机器人，你严格按以下方式工作"
-    "1.只有原答案为不知道时才进行修正,\n"
+    "1.只有原答案为不知道时才进行修正,否则输出原答案的内容\n"
     "2.修正的时候为了体现你的精准和客观，你非常喜欢使用《书名》[]将原文展示出来.\n"
-    "3.如果感到疑惑的时候，就用原答案回答。"
+    "3.如果感到疑惑的时候，就用原答案的内容回答。"
     "新的知识: {context_msg}\n"
     "问题: {query_str}\n"
     "原答案: {existing_answer}\n"
@@ -97,12 +98,12 @@ class MilvusExecutor(Executor):
         self.config = config
         self.node_parser = HistorySentenceWindowNodeParser.from_defaults(
             sentence_splitter=lambda text: re.findall("[^,.;。？！]+[,.;。？！]?", text),
-            window_size=5,
+            window_size=config.milvus.window_size,
             window_metadata_key="window",
             original_text_metadata_key="original_text",)
 
         embed_model = HuggingFaceEmbedding(model_name=config.embedding.name)
-        llm = OpenAI(temperature=config.llm.temperature, model=config.llm.name)
+        llm = OpenAI(temperature=config.llm.temperature, model=config.llm.name, max_tokens=2048)
         service_context = ServiceContext.from_defaults(llm=llm, embed_model=embed_model)
         set_global_service_context(service_context)
         rerank_k = config.milvus.rerank_topk
@@ -111,7 +112,7 @@ class MilvusExecutor(Executor):
         self._milvus_client = None
         self._debug = False
         
-    def set_debug(mode):
+    def set_debug(self, mode):
         self._debug = mode
 
     def build_index(self, path, overwrite):
@@ -151,7 +152,7 @@ class MilvusExecutor(Executor):
         vector_store = MilvusVectorStore(
             host = config.milvus.host,
             port = config.milvus.port,
-            collection_name = config.milvus.history_rag,
+            collection_name = config.milvus.collection_name,
             dim=config.embedding.dim)
         self.index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
         self._milvus_client = vector_store.milvusclient
@@ -183,22 +184,23 @@ class MilvusExecutor(Executor):
         config = self.config
         if self._milvus_client is None:
             self._get_index()
-        num_entities_prev = self._milvus_client.num_entities(config.milvus.collection_name)
+        num_entities_prev = self._milvus_client.query(collection_name='history_rag',filter=f"file_name=='{path}'",output_fields=["count(*)"])[0]["count(*)"]
         res = self._milvus_client.delete(collection_name=config.milvus.collection_name, filter=f"file_name=='{path}'")
-        num_entities = self._milvus_client.num_entities(config.milvus.collection_name)
-        print(f'现有{num_entities}条，删除{num_entities - num_entities_prev}条数据')
+        self._milvus_client.query(collection_name=config.milvus.collection_name,exp="",filter="",limit=10)
+        num_entities = self._milvus_client.query(collection_name='history_rag',filter=f"file_name=='{path}'",output_fields=["count(*)"])[0]["count(*)"]
+        print(f'现有{num_entities}条，删除{num_entities_prev - num_entities}条数据')
     
     def query(self, question):
         if self.index is None:
             self._get_index()
 
         if self._debug is True:
-            contexts = query_engine.retrieve(QueryBundle(query))
+            contexts = self.query_engine.retrieve(QueryBundle(question))
             for i, context in enumerate(contexts): 
-                print(f'{query}', i)
+                print(f'{question}', i)
                 content = context.node.get_content(metadata_mode=MetadataMode.LLM)
                 print(content)
-
+            print('-------------------------------------------------------参考资料---------------------------------------------------------')
         response = self.query_engine.query(question)
         return response
 
@@ -230,7 +232,7 @@ class PipelineExecutor(Executor):
         #self.rerank_postprocessor = SentenceTransformerRerank(
         #    model="BAAI/bge-reranker-large", top_n=rerank_k)
 
-    def set_debug(mode):
+    def set_debug(self, mode):
         self._debug = mode
 
     def _initialize_pipeline(self):
@@ -298,11 +300,11 @@ class PipelineExecutor(Executor):
         config = self.config
         if self._milvus_client is None:
             self._get_index()
-        num_entities_prev = self._milvus_client.num_entities(config.pipeline.collection_name)
-        print(num_entities_prev)
-        res = self._milvus_client.delete(collection_name=config.pipeline.collection_name, filter=f"doc_name=='{path}'")
-        num_entities = self._milvus_client.num_entities(config.pipeline.collection_name)
-        print(f'现有{num_entities}条，删除{num_entities - num_entities_prev}条数据')
+        num_entities_prev = self._milvus_client.query(collection_name='history_rag',filter=f"file_name=='{path}'",output_fields=["count(*)"])[0]["count(*)"]
+        res = self._milvus_client.delete(collection_name=config.milvus.collection_name, filter=f"file_name=='{path}'")
+        self._milvus_client.query(collection_name=config.milvus.collection_name,exp="",filter="",limit=10)
+        num_entities = self._milvus_client.query(collection_name='history_rag',filter=f"file_name=='{path}'",output_fields=["count(*)"])[0]["count(*)"]
+        print(f'现有{num_entities}条，删除{num_entities_prev - num_entities}条数据')
 
     def query(self, question):
         if self.index is None:

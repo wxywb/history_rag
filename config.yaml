@@ -11,7 +11,8 @@ milvus:
     port: "19530"
     collection_name: "history_rag"
     retrieve_topk: 200
-    rerank_topk: 15 
+    window_size: 4
+    rerank_topk: 10
 pipeline:
     collection_name: "history_rag" 
     retrieve_topk: 3

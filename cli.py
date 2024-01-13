@@ -18,12 +18,18 @@ class CommandLine():
             mode = input('选择[milvus|pipeline]方案\n')
             if mode == 'milvus':
                 self._executor = MilvusExecutor(conf) 
-                print('milvus模式已选择, 使用`build data/history_24/baihuasanguozhi.txt`来进行知识库构建。')
+                print('milvus模式已选择')
+                print('  1.使用`build data/history_24/baihuasanguozhi.txt`来进行知识库构建。')
+                print('  2.已有索引可以使用`ask`进行提问。')
+                print('  3.删除已有索引可以使用`remove baihuasanguozhi.txt`。')
                 self._mode = 'milvus'
                 break
             elif mode == 'pipeline':
                 self._excutor = PipelineExecutor(conf)
                 print('pipeline模式已选择, 使用`build https://raw.githubusercontent.com/wxywb/history_rag/master/data/history_24/baihuasanguozhi.txt`来进行知识库构建。')
+                print('  1.使用`build https://raw.githubusercontent.com/wxywb/history_rag/master/data/history_24/baihuasanguozhi.txt`来进行知识库构建。')
+                print('  2.已有索引可以使用`ask`进行提问。')
+                print('  3.删除已有索引可以使用`remove baihuasanguozhi.txt`。')
                 self._mode = 'pipeline'
                 break
             elif mode == 'quit':
@@ -59,8 +65,9 @@ class CommandLine():
         elif commands[0] == 'remove':
             if len(commands) != 2:
                 print('remove只接受1个参数。')
+            self._executor.delete_file(commands[1])
             
-        elif commands[0] == 'quit':
+        elif 'quit' in commands[0]:
             self._exit()
         else: 
             print('只有[build|ask|remove|quit]中的操作, 请重新尝试。')
@@ -83,6 +90,10 @@ class CommandLine():
             if question == 'quit':
                 print('退出问答')
                 break
+            elif question == "":
+                continue
+            else:
+                pass
             self.query(question)
 
     def _exit(self):

@@ -1,5 +1,7 @@
 # 史料RAG
 
+![展示所用语料的历史RAG](./demo.png)
+
 本项目展示如何使用[向量数据库](https://zilliz.com.cn/)基于[RAG(检索增强生成)](https://zhuanlan.zhihu.com/p/643953182)方式搭建一个中国历史问答应用。这个应用接受用户的询问，从历史语料库中检索相关的历史资料片段，利用大语言模型给出较为可靠的回答。相比于直接询问大模型，这种方式具有回答准确率高，不容易产生大模型的“幻觉”问题等优点。
 
 本项目实现了两种使用方式，“Milvus方案“在本地启动一个Milvus向量数据库的Docker服务，使用LlamaIndex框架和本地`BAAI/bge-base-zh-v1.5`Embedding模型实现RAG的业务逻辑。“云服务方案”使用云上的知识库检索服务Zilliz Cloud Pipelines，该服务包括了RAG中文档切片、向量化、向量检索等功能。两种方案均使用OpenAI的GPT作为大语言模型。
@@ -54,11 +56,11 @@ pip install -r requirements.txt
 ```
 
 ### 步骤4: 构建史料知识库
-利用文本史料构建方便进行RAG的向量索引。执行交互程序cli.py,选择`milvus`模式，然后输入要构建的语料，`build ./history24/`会将该目录下所有文件进行索引构建，会消耗大量算力抽取向量，针对大规模语料库建议使用下面的“云服务方案”。
+利用文本史料构建方便进行RAG的向量索引。执行交互程序cli.py,选择`milvus`模式，然后输入要构建的语料，`build ./data/history24/`会将该目录下所有文件进行索引构建，会消耗大量算力抽取向量，针对大规模语料库建议使用下面的“云服务方案”。
 ```bash
 python cli.py
 milvus
-build ./history24/baihuasanguozhi.txt
+build .data/history24/baihuasanguozhi.txt
 ```
 
 ### 步骤5: 进行问题查询
