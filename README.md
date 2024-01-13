@@ -56,11 +56,11 @@ pip install -r requirements.txt
 ```
 
 ### 步骤4: 构建史料知识库
-利用文本史料构建方便进行RAG的向量索引。执行交互程序cli.py,选择`milvus`模式，然后输入要构建的语料，`build ./data/history24/`会将该目录下所有文件进行索引构建，会消耗大量算力抽取向量，针对大规模语料库建议使用下面的“云服务方案”。
+利用文本史料构建方便进行RAG的向量索引。执行交互程序cli.py,选择`milvus`模式，然后输入要构建的语料，`build ./data/history_24/`会将该目录下所有文件进行索引构建，会消耗大量算力抽取向量，针对大规模语料库建议使用下面的“云服务方案”。
 ```bash
 python cli.py
 milvus
-build .data/history24/baihuasanguozhi.txt
+build .data/history_24/baihuasanguozhi.txt
 ```
 
 ### 步骤5: 进行问题查询
