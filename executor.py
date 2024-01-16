@@ -127,16 +127,16 @@ class MilvusExecutor(Executor):
          
         if path.endswith('.txt'):
             if os.path.exists(path) is False:
-                print(f'没有找到文件{path}')
+                print(f'(rag) 没有找到文件{path}')
                 return
             else:
                 documents = FlatReader().load_data(Path(path))
                 documents[0].metadata['file_name'] = documents[0].metadata['filename'] 
         elif os.path.isfile(path):           
-            print('目前仅支持txt文件')
+            print('(rag) 目前仅支持txt文件')
         elif os.path.isdir(path):
             if os.path.exists(path) is False:
-                print(f'没有找到目录{path}')
+                print(f'(rag) 没有找到目录{path}')
                 return
             else:
                 documents = SimpleDirectoryReader(path).load_data()
@@ -188,7 +188,7 @@ class MilvusExecutor(Executor):
         res = self._milvus_client.delete(collection_name=config.milvus.collection_name, filter=f"file_name=='{path}'")
         self._milvus_client.query(collection_name=config.milvus.collection_name,exp="",filter="",limit=10)
         num_entities = self._milvus_client.query(collection_name='history_rag',filter=f"file_name=='{path}'",output_fields=["count(*)"])[0]["count(*)"]
-        print(f'现有{num_entities}条，删除{num_entities_prev - num_entities}条数据')
+        print(f'(rag) 现有{num_entities}条，删除{num_entities_prev - num_entities}条数据')
     
     def query(self, question):
         if self.index is None:
@@ -245,19 +245,19 @@ class PipelineExecutor(Executor):
                 collection_name=config.pipeline.collection_name,
             )
         except Exception as e:
-            print('zilliz pipeline 连接异常', str(e))
+            print('(rag) zilliz pipeline 连接异常', str(e))
         try:
             self._milvus_client = MilvusClient(
                 uri=self.ZILLIZ_CLUSTER_ENDPOINT, 
                 token=self.ZILLIZ_TOKEN 
             )
         except Exception as e:
-            print('zilliz cloud 连接异常', str(e))
+            print('(rag) zilliz cloud 连接异常', str(e))
 
     def build_index(self, path, overwrite):
         config = self.config
         if not is_valid_url(path) or 'github' not in path:
-            print('不是一个合法的url，请尝试`https://raw.githubusercontent.com/wxywb/history_rag/master/data/history_24/baihuasanguozhi.txt`')
+            print('(rag) 不是一个合法的url，请尝试`https://raw.githubusercontent.com/wxywb/history_rag/master/data/history_24/baihuasanguozhi.txt`')
             return
         if overwrite == True:
             self._milvus_client.drop_collection(config.pipeline.collection_name)
@@ -277,7 +277,7 @@ class PipelineExecutor(Executor):
                 metadata={"file_name": os.path.basename(path)},
             )
         else:
-            print('只有github上以txt结尾或文件夹可以被支持。')
+            print('(rag) 只有github上以txt结尾或文件夹可以被支持。')
 
     def build_query_engine(self):
         config = self.config
@@ -305,7 +305,7 @@ class PipelineExecutor(Executor):
         res = self._milvus_client.delete(collection_name=config.milvus.collection_name, filter=f"file_name=='{path}'")
         self._milvus_client.query(collection_name=config.milvus.collection_name,exp="",filter="",limit=10)
         num_entities = self._milvus_client.query(collection_name='history_rag',filter=f"file_name=='{path}'",output_fields=["count(*)"])[0]["count(*)"]
-        print(f'现有{num_entities}条，删除{num_entities_prev - num_entities}条数据')
+        print(f'(rag) 现有{num_entities}条，删除{num_entities_prev - num_entities}条数据')
 
     def query(self, question):
         if self.index is None:
