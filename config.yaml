@@ -1,6 +1,6 @@
 llm:
     name: "gpt-4"
-    temperature: 0.05
+    temperature: 0.01
 embedding:
     name: "BAAI/bge-base-zh-v1.5"
     dim: 768 

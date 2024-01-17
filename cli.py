@@ -1,4 +1,6 @@
 from executor import MilvusExecutor
+from executor import PipelineExecutor
+
 import yaml
 from easydict import EasyDict
 
@@ -20,7 +22,8 @@ class CommandLine():
         self.show_start_info()
         while True:
             conf = read_yaml_config('config.yaml')
-            mode = input('(rag) 选择[milvus|pipeline]方案\n')
+            print('(rag) 选择[milvus|pipeline]方案\n')
+            mode = input('(rag) ')
             if mode == 'milvus':
                 self._executor = MilvusExecutor(conf) 
                 print('(rag) milvus模式已选择')
@@ -30,7 +33,7 @@ class CommandLine():
                 self._mode = 'milvus'
                 break
             elif mode == 'pipeline':
-                self._excutor = PipelineExecutor(conf)
+                self._executor = PipelineExecutor(conf)
                 print('(rag) pipeline模式已选择, 使用`build https://raw.githubusercontent.com/wxywb/history_rag/master/data/history_24/baihuasanguozhi.txt`来进行知识库构建。')
                 print('  1.使用`build https://raw.githubusercontent.com/wxywb/history_rag/master/data/history_24/baihuasanguozhi.txt`来进行知识库构建。')
                 print('  2.已有索引可以使用`ask`进行提问, `-d`参数以debug模式进入。')

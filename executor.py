@@ -184,10 +184,9 @@ class MilvusExecutor(Executor):
         config = self.config
         if self._milvus_client is None:
             self._get_index()
-        num_entities_prev = self._milvus_client.query(collection_name='history_rag',filter=f"file_name=='{path}'",output_fields=["count(*)"])[0]["count(*)"]
+        num_entities_prev = self._milvus_client.query(collection_name='history_rag',filter="",output_fields=["count(*)"])[0]["count(*)"]
         res = self._milvus_client.delete(collection_name=config.milvus.collection_name, filter=f"file_name=='{path}'")
-        self._milvus_client.query(collection_name=config.milvus.collection_name,exp="",filter="",limit=10)
-        num_entities = self._milvus_client.query(collection_name='history_rag',filter=f"file_name=='{path}'",output_fields=["count(*)"])[0]["count(*)"]
+        num_entities = self._milvus_client.query(collection_name='history_rag',filter="",output_fields=["count(*)"])[0]["count(*)"]
         print(f'(rag) 现有{num_entities}条，删除{num_entities_prev - num_entities}条数据')
     
     def query(self, question):
@@ -239,6 +238,9 @@ class PipelineExecutor(Executor):
     def _initialize_pipeline(self):
         config = self.config
         try:
+            pipeline_ids = ZillizCloudPipelineIndex._get_pipeline_ids(cluster_id=self.ZILLIZ_CLUSTER_ID, token=self.ZILLIZ_TOKEN, cloud_region="gcp-us-west1", collection_name=config.pipeline.collection_name)
+            if pipeline_ids == {}:
+                ZillizCloudPipelineIndex._create_pipelines(cluster_id=self.ZILLIZ_CLUSTER_ID, token=self.ZILLIZ_TOKEN, cloud_region="gcp-us-west1", collection_name=config.pipeline.collection_name, metadata_schema={"digest_from":"VarChar"})
             self.index = ZillizCloudPipelineIndex(
                 cluster_id=self.ZILLIZ_CLUSTER_ID,
                 token=self.ZILLIZ_TOKEN,
@@ -246,6 +248,7 @@ class PipelineExecutor(Executor):
             )
         except Exception as e:
             print('(rag) zilliz pipeline 连接异常', str(e))
+            exit()
         try:
             self._milvus_client = MilvusClient(
                 uri=self.ZILLIZ_CLUSTER_ENDPOINT, 
@@ -274,7 +277,7 @@ class PipelineExecutor(Executor):
         elif path.endswith('.txt'):
             self.index.insert_doc_url(
                 url=path,
-                metadata={"file_name": os.path.basename(path)},
+                metadata={"digest_from": HistorySentenceWindowNodeParser.book_name(os.path.basename(path))},
             )
         else:
             print('(rag) 只有github上以txt结尾或文件夹可以被支持。')
@@ -301,10 +304,9 @@ class PipelineExecutor(Executor):
         config = self.config
         if self._milvus_client is None:
             self._get_index()
-        num_entities_prev = self._milvus_client.query(collection_name='history_rag',filter=f"file_name=='{path}'",output_fields=["count(*)"])[0]["count(*)"]
-        res = self._milvus_client.delete(collection_name=config.milvus.collection_name, filter=f"file_name=='{path}'")
-        self._milvus_client.query(collection_name=config.milvus.collection_name,exp="",filter="",limit=10)
-        num_entities = self._milvus_client.query(collection_name='history_rag',filter=f"file_name=='{path}'",output_fields=["count(*)"])[0]["count(*)"]
+        num_entities_prev = self._milvus_client.query(collection_name='history_rag',filter="",output_fields=["count(*)"])[0]["count(*)"]
+        res = self._milvus_client.delete(collection_name=config.milvus.collection_name, filter=f"doc_name=='{path}'")
+        num_entities = self._milvus_client.query(collection_name='history_rag',filter="",output_fields=["count(*)"])[0]["count(*)"]
         print(f'(rag) 现有{num_entities}条，删除{num_entities_prev - num_entities}条数据')
 
     def query(self, question):
