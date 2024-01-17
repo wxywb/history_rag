@@ -118,7 +118,7 @@ class HistorySentenceWindowNodeParser(NodeParser):
         lines = text.split('\n')
         titles = []
         for i, line in enumerate(lines):
-            if len(line) > 0 and line[0] != '\n' and line[0] != '\u3000':
+            if len(line) > 0 and line[0] != '\n' and line[0] != '\u3000' and line[0] != ' ':
                 if '纪' not in line and '传' not in line:
                     continue
                 titles.append([line.strip(), i])
@@ -134,8 +134,6 @@ class HistorySentenceWindowNodeParser(NodeParser):
             title_localizer = self.analyze_titles(text)
             lines = text.split('\n')
             nodes = []
-            #import ipdb
-            #ipdb.set_trace()
             book_name = HistorySentenceWindowNodeParser.book_name(doc.metadata['file_name'])
             for i, line in enumerate(lines):
                 if len(line) == 0:

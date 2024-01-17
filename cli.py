@@ -12,7 +12,12 @@ class CommandLine():
         self._mode = None
         self._executor = None
 
+    def show_start_info(self):
+        with open('./start_info.txt') as fw:
+            print(fw.read())
+
     def run(self):
+        self.show_start_info()
         while True:
             conf = read_yaml_config('config.yaml')
             mode = input('(rag) 选择[milvus|pipeline]方案\n')
@@ -20,7 +25,7 @@ class CommandLine():
                 self._executor = MilvusExecutor(conf) 
                 print('(rag) milvus模式已选择')
                 print('  1.使用`build data/history_24/baihuasanguozhi.txt`来进行知识库构建。')
-                print('  2.已有索引可以使用`ask`进行提问。')
+                print('  2.已有索引可以使用`ask`进行提问, `-d`参数以debug模式进入。')
                 print('  3.删除已有索引可以使用`remove baihuasanguozhi.txt`。')
                 self._mode = 'milvus'
                 break
@@ -28,7 +33,7 @@ class CommandLine():
                 self._excutor = PipelineExecutor(conf)
                 print('(rag) pipeline模式已选择, 使用`build https://raw.githubusercontent.com/wxywb/history_rag/master/data/history_24/baihuasanguozhi.txt`来进行知识库构建。')
                 print('  1.使用`build https://raw.githubusercontent.com/wxywb/history_rag/master/data/history_24/baihuasanguozhi.txt`来进行知识库构建。')
-                print('  2.已有索引可以使用`ask`进行提问。')
+                print('  2.已有索引可以使用`ask`进行提问, `-d`参数以debug模式进入。')
                 print('  3.删除已有索引可以使用`remove baihuasanguozhi.txt`。')
                 self._mode = 'pipeline'
                 break
