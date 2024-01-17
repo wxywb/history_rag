@@ -22,7 +22,7 @@ class CommandLine():
         self.show_start_info()
         while True:
             conf = read_yaml_config('config.yaml')
-            print('(rag) 选择[milvus|pipeline]方案\n')
+            print('(rag) 选择[milvus|pipeline]方案')
             mode = input('(rag) ')
             if mode == 'milvus':
                 self._executor = MilvusExecutor(conf) 

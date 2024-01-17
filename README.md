@@ -107,6 +107,28 @@ ask
 问题:关公刮骨疗毒是真的吗
 ```
 
+## FAQ
+
+**问题**：如何使用别的embedding模型以及reranker模型？
+```bash
+回答：在config.yaml中进行修改，注意要填写正确的模型向量维度。
+```
+
+**问题**：huggingface无法连接上，无法下载模型怎么办？
+```bash
+回答：将`export HF_ENDPOINT=https://hf-mirror.com`添加到你的环境变量中。
+```
+
+**问题**：可以添加别的史料吗？
+```bash
+回答：可以，但是由于会根据纪传体格式来判断引用时候的章节名，所以最好是每一个章节以"某某传"开头(无缩进)，然后使用缩进来表示正文。
+```
+
+**问题**：可以使用其他LLM吗？
+```bash
+回答：可以，Llama Index所支持的LLM都可以很轻松的使用, 由于默认使用的是OpenAI的模型，所以需要在`executor.py`中初始化其他LLM来进行集成。
+```
+
 ## 指令附录
 
 | Command                   | Flag(s)          | Description                                      |
