@@ -314,6 +314,13 @@ class PipelineExecutor(Executor):
             self.get_index()
         if question.endswith("?") or question.endswith("？"):
             question = question[:-1]
+        if self._debug is True:
+            contexts = self.query_engine.retrieve(QueryBundle(question))
+            for i, context in enumerate(contexts): 
+                print(f'{question}', i)
+                content = context.node.get_content(metadata_mode=MetadataMode.LLM)
+                print(content)
+            print('-------------------------------------------------------参考资料---------------------------------------------------------')
         response = self.query_engine.query(question)
         return response
 
