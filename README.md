@@ -60,7 +60,7 @@ python cli.py
 ```
 
 ## Zilliz Cloud Pipelines方案
-    
+(⚠️Zilliz Pipeline的表现性能与Milvus方案并不一致，会随着云上功能的迭代进行更新优化)    
 ### 步骤1: 配置OpenAI API key
 
 项目中使用OpenAI的GPT作为大语言模型，在开始之前，配置环境变量存放 OpenAI API Key (格式类似于sk-xxxxxxxx)。如果没有，请参考[OpenAI官方文档](https://platform.openai.com/docs/quickstart?context=curl)获取。在terminal中输入以下命令添加环境变量：
@@ -129,6 +129,10 @@ ask
 **问题**：可以使用其他LLM吗？
 ```bash
 回答：可以，Llama Index所支持的LLM都可以很轻松的使用, 由于默认使用的是OpenAI的模型，所以需要在`executor.py`中初始化其他LLM来进行集成。
+```
+**问题**：为什么我的问答每次效果都不一样？
+```bash
+回答：RAG中的Retrieval过程都是确定性的，不确定性在于LLM，可以进一步优化`executor.py`中的PROMPT，使用COT，或者指定格式的技巧让其进一步稳定，也可以使用GPT-4 Turbo中的seed参数让其产生确定性行为。
 ```
 
 ## 指令附录
