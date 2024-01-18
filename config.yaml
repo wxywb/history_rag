@@ -15,7 +15,8 @@ milvus:
     rerank_topk: 15
 pipeline:
     collection_name: "history_rag" 
-    retrieve_topk: 3
+    chunk_size: 500
+    retrieve_topk: 8
     
 
 

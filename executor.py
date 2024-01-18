@@ -20,7 +20,8 @@ from llama_index.node_parser.text import SentenceWindowNodeParser
 from llama_index.prompts import ChatPromptTemplate, ChatMessage, MessageRole, PromptTemplate
 from llama_index.postprocessor import MetadataReplacementPostProcessor
 from llama_index.postprocessor import SentenceTransformerRerank
-from llama_index.indices import ZillizCloudPipelineIndex
+#from llama_index.indices import ZillizCloudPipelineIndex
+from custom.zilliz.base import ZillizCloudPipelineIndex
 from llama_index.indices.query.schema import QueryBundle
 
 from custom.history_sentence_window import HistorySentenceWindowNodeParser
@@ -208,6 +209,7 @@ class PipelineExecutor(Executor):
     def __init__(self, config):
         self.ZILLIZ_CLUSTER_ID = os.getenv("ZILLIZ_CLUSTER_ID")
         self.ZILLIZ_TOKEN = os.getenv("ZILLIZ_TOKEN")
+        self.ZILLIZ_PROJECT_ID = os.getenv("ZILLIZ_PROJECT_ID") 
         self.ZILLIZ_CLUSTER_ENDPOINT = f"https://{self.ZILLIZ_CLUSTER_ID}.api.gcp-us-west1.zillizcloud.com"
     
         self.config = config
@@ -223,9 +225,8 @@ class PipelineExecutor(Executor):
         self.config = config
         self._debug = False
 
-        embed_model = HuggingFaceEmbedding(model_name=config.embedding.name)
         llm = OpenAI(temperature=config.llm.temperature, model=config.llm.name)
-        service_context = ServiceContext.from_defaults(llm=llm, embed_model=embed_model)
+        service_context = ServiceContext.from_defaults(llm=llm, embed_model=None)
         set_global_service_context(service_context)
 
         #rerank_k = config.rerankl
@@ -238,14 +239,16 @@ class PipelineExecutor(Executor):
     def _initialize_pipeline(self):
         config = self.config
         try:
-            pipeline_ids = ZillizCloudPipelineIndex._get_pipeline_ids(cluster_id=self.ZILLIZ_CLUSTER_ID, token=self.ZILLIZ_TOKEN, cloud_region="gcp-us-west1", collection_name=config.pipeline.collection_name)
-            if pipeline_ids == {}:
-                ZillizCloudPipelineIndex._create_pipelines(cluster_id=self.ZILLIZ_CLUSTER_ID, token=self.ZILLIZ_TOKEN, cloud_region="gcp-us-west1", collection_name=config.pipeline.collection_name, metadata_schema={"digest_from":"VarChar"})
             self.index = ZillizCloudPipelineIndex(
+                project_id = self.ZILLIZ_PROJECT_ID,
                 cluster_id=self.ZILLIZ_CLUSTER_ID,
                 token=self.ZILLIZ_TOKEN,
                 collection_name=config.pipeline.collection_name,
-            )
+             )
+            if len(self._list_pipeline_ids()) == 0:
+                self.index.create_pipelines(
+                    metadata_schema={"digest_from":"VarChar"}, chunk_size=self.config.pipeline.chunk_size
+                )
         except Exception as e:
             print('(rag) zilliz pipeline 连接异常', str(e))
             exit()
@@ -325,13 +328,14 @@ class PipelineExecutor(Executor):
         return response
 
     def _list_pipeline_ids(self):
-        url = "https://controller.api.gcp-us-west1.zillizcloud.com/v1/pipelines"
+        url = f"https://controller.api.gcp-us-west1.zillizcloud.com/v1/pipelines?projectId={self.ZILLIZ_PROJECT_ID}"
         headers = {
             "Authorization": f"Bearer {self.ZILLIZ_TOKEN}",
             "Accept": "application/json",
             "Content-Type": "application/json",
         }
 
+        collection_name = self.config.milvus.collection_name
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
             raise RuntimeError(response.text)
@@ -340,14 +344,14 @@ class PipelineExecutor(Executor):
             raise RuntimeError(response_dict)
         pipeline_ids = []
         for pipeline in response_dict['data']: 
-            if 'llama' in  pipeline['name']:
+            if collection_name in  pipeline['name']:
                 pipeline_ids.append(pipeline['pipelineId'])
             
         return pipeline_ids
 
     def _delete_pipeline_ids(self, pipeline_ids):
         for pipeline_id in pipeline_ids:
-            url = f"https://controller.api.gcp-us-west1.zillizcloud.com/v1/pipelines/{pipeline_id}"
+            url = f"https://controller.api.gcp-us-west1.zillizcloud.com/v1/pipelines/{pipeline_id}/"
             headers = {
                 "Authorization": f"Bearer {self.ZILLIZ_TOKEN}",
                 "Accept": "application/json",
