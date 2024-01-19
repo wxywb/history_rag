@@ -75,11 +75,13 @@ export OPENAI_API_KEY='your-api-key-here'
 ### 步骤2: 获取Zilliz Cloud的配置信息
 
 注册[Zilliz Cloud](https://cloud.zilliz.com/signup?utm_source=partner&utm_medium=referral&utm_campaign=2024-01-18_product_zcp-demos_github&utm_content=history-rag)账号，获取相应的配置，这个方案可以利用云端的算力进行大量文档的处理。你可以参考[这里](https://github.com/milvus-io/bootcamp/blob/master/bootcamp/RAG/zilliz_pipeline_rag.ipynb)了解更加详细的使用教程。
+![Pipeline所需要的projectId](./fig1.jpeg)
 ![Pipeline中所需要的两个配置信息](https://raw.githubusercontent.com/milvus-io/bootcamp/6706a04e45018312905ccb7ad34def031d6937f7/images/zilliz_api_key_cluster_id.jpeg)
 同样在环境变量中添加
 ```bash
-export ZILLIZ_TOKEN=<左边红框的信息> 
-export ZILLIZ_CLUSTER_ID=<右边红框的信息>
+export ZILLIZ_PROJECT_ID=<一图中的信息> 
+export ZILLIZ_TOKEN=<二图左边红框的信息> 
+export ZILLIZ_CLUSTER_ID=<二图右边红框的信息>
 ```
 
 ### 步骤3: 安装Python依赖项
