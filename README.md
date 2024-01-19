@@ -139,7 +139,7 @@ ask
 **问题**：模型太大，网络连接不稳定，容易失败怎么办？
 > 回答：运行下面命令，将模型下载到本地,然后就可以进行使用。
 > ```bash
-> huggingface-cli download --resume-download BAAI/bge-reranker-large`
+> huggingface-cli download --resume-download BAAI/bge-reranker-large
 > ```
 > 如果你的环境中没有`huggingface-cli`，可以运行下面的`pip install`工具安装。
 > ```bash
