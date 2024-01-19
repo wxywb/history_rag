@@ -63,7 +63,8 @@ python cli.py
 ```
 
 ## Zilliz Cloud Pipelines方案
-(⚠️Zilliz Cloud Pipelines的实现与上文中Milvus方案存在差异，可能会产生不同的回答。这是由于使用的文档切片方式、embedding模型等不同导致的。Zilliz Cloud Pipelines服务提供了更好的伸缩弹性，免去了维护生产环境中复杂组件的麻烦，其召回质量会随着云上功能的迭代持续更新优化，并且支持召回方案的个性化配置。)    
+📒 Zilliz Cloud Pipelines的实现与上文中Milvus方案存在差异，可能会产生不同的回答。这是由于使用的文档切片方式、embedding模型等不同导致的。Zilliz Cloud Pipelines服务提供了更好的伸缩弹性，免去了维护生产环境中复杂组件的麻烦，其召回质量会随着云上功能的迭代持续更新优化，并且支持召回方案的个性化配置。
+
 ### 步骤1: 配置OpenAI API key
 
 项目中使用OpenAI的GPT4作为大语言模型，在开始之前，配置环境变量存放 OpenAI API Key (格式类似于sk-xxxxxxxx)。如果没有，请参考[OpenAI官方文档](https://platform.openai.com/docs/quickstart?context=curl)获取。在terminal中输入以下命令添加环境变量：
@@ -73,7 +74,7 @@ export OPENAI_API_KEY='your-api-key-here'
 
 ### 步骤2: 获取Zilliz Cloud的配置信息
 
-注册[Zilliz Cloud](https://cloud.zilliz.com/signup?utm_source=referral&utm_medium=partner&utm_campaign=2023-12-22_hackernews-post_pipeline-hn-intro_hackernews)账号，获取相应的配置，这个方案可以利用云端的算力进行大量文档的处理。你可以参考[这里](https://github.com/milvus-io/bootcamp/blob/master/bootcamp/RAG/zilliz_pipeline_rag.ipynb)了解更加详细的使用教程。
+注册[Zilliz Cloud](https://cloud.zilliz.com/signup?utm_source=partner&utm_medium=referral&utm_campaign=2024-01-18_product_zcp-demos_github&utm_content=history-rag)账号，获取相应的配置，这个方案可以利用云端的算力进行大量文档的处理。你可以参考[这里](https://github.com/milvus-io/bootcamp/blob/master/bootcamp/RAG/zilliz_pipeline_rag.ipynb)了解更加详细的使用教程。
 ![Pipeline中所需要的两个配置信息](https://raw.githubusercontent.com/milvus-io/bootcamp/6706a04e45018312905ccb7ad34def031d6937f7/images/zilliz_api_key_cluster_id.jpeg)
 同样在环境变量中添加
 ```bash
@@ -96,8 +97,6 @@ pip install -r requirements.txt
 ```
 
 ### 步骤4: 构建史料知识库
-
-
 
 执行交互程序cli.py,选择`milvus`模式，然后输入要构建的语料，例如`build ./data/history_24/baihuasanguozhi.txt`会将白话版《三国志》导入。
 ```bash
