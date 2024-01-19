@@ -128,30 +128,33 @@ ask
 ## FAQ
 
 **问题**：huggingface无法连接上，无法下载模型怎么办？
-```bash
-回答：将`export HF_ENDPOINT=https://hf-mirror.com`添加到你的环境变量中。
-```
+
+> 回答：运行下面的命令，添加环境变量使用镜像站`https://hf-mirror.com`下载。
+> ```bash
+> export HF_ENDPOINT=https://hf-mirror.com
+> ```
+
 **问题**：模型太大，网络连接不稳定，容易失败怎么办？
-```bash
-回答：以此命令为例，使用`huggingface-cli download --resume-download --local-dir-use-symlinks False BAAI/bge-reranker-large --local-dir bge-reranker-large`
-将模型下载到本地,然后就可以进行使用。
-```
+> 回答：运行下面命令，将模型下载到本地,然后就可以进行使用。
+> ```bash
+> huggingface-cli download --resume-download --local-dir-use-symlinks False BAAI/bge-reranker-large --local-dir bge-reranker-large`
+> ```
+> 如果你的环境中没有`huggingface-cli`，可以运行下面的`pip install`工具安装。
+> ```bash
+> pip install -U "huggingface_hub[cli]"
+> ```
+
 **问题**：为什么我的问答每次效果都不一样？
-```bash
-回答：RAG中的Retrieval（召回）过程都是确定性的，但是大语言模型的内容生成存在一定随机性。存在一些方法让其进一步稳定，例如调整`executor.py`中的PROMPT，使用COT等Prompt Engineering方案，或者调整GPT-4 中的seed和temperature参数（但这可能会影响大模型的泛化能力）。
-```
+> 回答：RAG中的Retrieval（召回）过程都是确定性的，但是大语言模型的内容生成存在一定随机性。存在一些方法让其进一步稳定，例如调整`executor.py`中的PROMPT，使用COT等Prompt Engineering方案，或者调整GPT-4 中的seed和temperature参数（但这可能会影响大模型的泛化能力）。
+
 **问题**：可以添加别的史料吗？
-```bash
-回答：可以，但是由于会根据纪传体格式来判断引用时候的章节名，所以最好是每一个章节以"某某传"开头(无缩进)，然后使用缩进来表示正文。
-```
+> 回答：可以，但是由于会根据纪传体格式来判断引用时候的章节名，所以最好是每一个章节以"某某传"开头(无缩进)，然后使用缩进来表示正文。
+
 **问题**：如何使用别的embedding模型以及reranker模型？
-```bash
-回答：在config.yaml中进行修改，注意要填写正确的模型向量维度。
-```
+> 回答：embedding模型以及reranker模型是在`config.yaml`文件中配置的，可以修改该文件配置你想使用的模型，注意不同的embedding模型模型向量维度可能不同，在配置文件中要对应修改向量维度参数。
+
 **问题**：可以使用其他LLM吗？
-```bash
-回答：可以，Llama Index所支持的LLM都可以很轻松的使用, 由于默认使用的是OpenAI的模型，所以需要在`executor.py`中初始化其他LLM来进行集成。
-```
+> 回答：可以，Llama Index所支持的LLM都可以很轻松的使用。项目默认使用的是OpenAI的GPT4模型。如果使用其他模型，需要在`config.yaml`配置文件中修改`llm`配置项，并且修改`executor.py`中的逻辑，初始化其他LLM来进行集成。
 
 ## 指令附录
 
