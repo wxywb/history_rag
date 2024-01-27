@@ -12,7 +12,7 @@ from llama_index import ServiceContext, StorageContext
 from llama_index import set_global_service_context
 from llama_index import VectorStoreIndex, SimpleDirectoryReader, Document
 from llama_index.llms import OpenAI
-from QwenLLM import QwenUnofficial
+from custom.llms.QwenLLM import QwenUnofficial
 from llama_index.readers.file.flat_reader import FlatReader
 from llama_index.vector_stores import MilvusVectorStore
 from llama_index.embeddings import HuggingFaceEmbedding

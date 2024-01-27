@@ -21,7 +21,7 @@ from llama_index.llms.types import (
     LLMMetadata,
 )
 
-DEFAULT_MODEL = "qwen-turobo"
+DEFAULT_MODEL = "qwen-max"
 #export DASHSCOPE_API_KEY="YOUR_KEY"
 
 import random
