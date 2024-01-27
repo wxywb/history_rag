@@ -13,7 +13,7 @@
     安装Docker
     安装python3
 ## 更新
-- 1/27/2024: [leyiang](https://www.github.com/leyiang)添加了使用通义千问作为LLM的方式。
+- 1/27/2024: [leyiang](https://www.github.com/leyiang)添加了使用通义千问作为LLM的方式,详情请参考[文档](./docs/qwen.md)。
 ## Milvus方案
     
 ### 步骤1: 配置OpenAI API key
