@@ -12,6 +12,7 @@ from llama_index import ServiceContext, StorageContext
 from llama_index import set_global_service_context
 from llama_index import VectorStoreIndex, SimpleDirectoryReader, Document
 from llama_index.llms import OpenAI
+from custom.llms.QwenLLM import QwenUnofficial
 from llama_index.readers.file.flat_reader import FlatReader
 from llama_index.vector_stores import MilvusVectorStore
 from llama_index.embeddings import HuggingFaceEmbedding
@@ -104,7 +105,13 @@ class MilvusExecutor(Executor):
             original_text_metadata_key="original_text",)
 
         embed_model = HuggingFaceEmbedding(model_name=config.embedding.name)
-        llm = OpenAI(temperature=config.llm.temperature, model=config.llm.name, max_tokens=2048)
+
+        # 使用Qwen 通义千问模型
+        if config.llm.name == "qwen":
+            llm = QwenUnofficial(temperature=config.llm.temperature, model=config.llm.name, max_tokens=2048)
+        else:
+            llm = OpenAI(temperature=config.llm.temperature, model=config.llm.name, max_tokens=2048)
+
         service_context = ServiceContext.from_defaults(llm=llm, embed_model=embed_model)
         set_global_service_context(service_context)
         rerank_k = config.milvus.rerank_topk
