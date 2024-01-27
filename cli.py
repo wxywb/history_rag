@@ -3,6 +3,7 @@ from executor import PipelineExecutor
 
 import yaml
 from easydict import EasyDict
+import argparse
 
 def read_yaml_config(file_path):
     with open(file_path, "r") as file:
@@ -10,9 +11,10 @@ def read_yaml_config(file_path):
     return EasyDict(config_data)
 
 class CommandLine():
-    def __init__(self):
+    def __init__(self, config_path):
         self._mode = None
         self._executor = None
+        self.config_path = config_path
 
     def show_start_info(self):
         with open('./start_info.txt') as fw:
@@ -21,7 +23,7 @@ class CommandLine():
     def run(self):
         self.show_start_info()
         while True:
-            conf = read_yaml_config('config.yaml')
+            conf = read_yaml_config(self.config_path)
             print('(rag) 选择[milvus|pipeline]方案')
             mode = input('(rag) ')
             if mode == 'milvus':
@@ -110,6 +112,10 @@ class CommandLine():
         exit()
 
 if __name__ == '__main__':
-    cli = CommandLine()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--cfg', type=str, help='Path to the configuration file', default='cfgs/config.yaml')
+    args = parser.parse_args()
+
+    cli = CommandLine(args.cfg)
     cli.run()
 

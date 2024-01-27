@@ -12,7 +12,6 @@ from llama_index import ServiceContext, StorageContext
 from llama_index import set_global_service_context
 from llama_index import VectorStoreIndex, SimpleDirectoryReader, Document
 from llama_index.llms import OpenAI
-from custom.llms.QwenLLM import QwenUnofficial
 from llama_index.readers.file.flat_reader import FlatReader
 from llama_index.vector_stores import MilvusVectorStore
 from llama_index.embeddings import HuggingFaceEmbedding
@@ -24,10 +23,11 @@ from llama_index.postprocessor import SentenceTransformerRerank
 #from llama_index.indices import ZillizCloudPipelineIndex
 from custom.zilliz.base import ZillizCloudPipelineIndex
 from llama_index.indices.query.schema import QueryBundle
+from llama_index.schema import BaseNode, ImageNode, MetadataMode
 
 from custom.history_sentence_window import HistorySentenceWindowNodeParser
+from custom.llms.QwenLLM import QwenUnofficial
 
-from llama_index.schema import BaseNode, ImageNode, MetadataMode
 from pymilvus import MilvusClient
 
 QA_PROMPT_TMPL_STR = (

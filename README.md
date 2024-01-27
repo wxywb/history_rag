@@ -154,10 +154,10 @@ ask
 > 回答：可以，但是由于会根据纪传体格式来判断引用时候的章节名，所以最好是每一个章节以"某某传"开头(无缩进)，然后使用缩进来表示正文。
 
 **问题**：如何使用别的embedding模型以及reranker模型？
-> 回答：embedding模型以及reranker模型是在`config.yaml`文件中配置的，可以修改该文件配置你想使用的模型，注意不同的embedding模型模型向量维度可能不同，在配置文件中要对应修改向量维度参数。
+> 回答：embedding模型以及reranker模型是在`cfgs/config.yaml`文件中配置的，可以修改该文件配置你想使用的模型，注意不同的embedding模型模型向量维度可能不同，在配置文件中要对应修改向量维度参数。
 
 **问题**：可以使用其他LLM吗？
-> 回答：可以，Llama Index所支持的LLM都可以很轻松的使用。项目默认使用的是OpenAI的GPT4模型。如果使用其他模型，需要在`config.yaml`配置文件中修改`llm`配置项，并且修改`executor.py`中的逻辑，初始化其他LLM来进行集成。
+> 回答：可以，Llama Index所支持的LLM都可以很轻松的使用。项目默认使用的是OpenAI的GPT4模型。如果使用其他模型，需要在`cfgs/config.yaml`配置文件中修改`llm`配置项，并且修改`executor.py`中的逻辑，初始化其他LLM来进行集成。
 
 ## 指令附录
 
