@@ -3,4 +3,6 @@ pymilvus
 easydict
 dashscope
 
-
+torch
+transformers
+pyyaml
