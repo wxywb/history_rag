@@ -13,7 +13,7 @@
     安装Docker
     安装python3
 ## 更新
-- 1/30/2024: [taihaozesong](https://github.com/taihaozesong)添加了基于gradio的web ui界面。(./docs/web_ui.md)
+- 1/30/2024: [taihaozesong](https://github.com/taihaozesong)添加了基于gradio的web ui界面。使用请参考[文档](./docs/web_ui.md)
 - 1/29/2024: 针对windows环境，添加了一些[说明](./docs/windows.md)。
 - 1/27/2024: [leyiang](https://www.github.com/leyiang)添加了使用通义千问作为LLM的方式,详情请参考[文档](./docs/qwen.md)。
 ## Milvus方案
