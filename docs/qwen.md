@@ -5,7 +5,7 @@
 用法:
 1. 根据[教程](https://help.aliyun.com/zh/dashscope/developer-reference/api-details)安装sdk, 设置key。
 2. 执行python cli.py --cfg cfgs/config_qwen.yaml
-3. 其他步骤与原教程相同。
+3. 其他步骤与原教程相同。(ZillizPipeline方案类似)
 
 问题：
 1. 代码好像会对同一个问题多轮提问，以优化回答，API大部分都会回复："新的上下文没什么帮助..."

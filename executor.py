@@ -235,7 +235,14 @@ class PipelineExecutor(Executor):
         self.config = config
         self._debug = False
 
-        llm = OpenAI(temperature=config.llm.temperature, model=config.llm.name)
+        if config.llm.name == "qwen":
+            llm = QwenUnofficial(temperature=config.llm.temperature, model=config.llm.name, max_tokens=2048)
+        else:
+            api_base = None
+            if 'api_base' in config.llm:
+                api_base = config.llm.api_base
+            llm = OpenAI(api_base = api_base, temperature=config.llm.temperature, model=config.llm.name, max_tokens=2048)
+
         service_context = ServiceContext.from_defaults(llm=llm, embed_model=None)
         set_global_service_context(service_context)
 
