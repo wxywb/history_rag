@@ -129,8 +129,7 @@ class MilvusExecutor(Executor):
     def build_index(self, path, overwrite):
         config = self.config
         vector_store = MilvusVectorStore(
-            host = config.milvus.host,
-            port = config.milvus.port,
+            uri = f"http://{config.milvus.host}:{config.milvus.port}",
             collection_name = config.milvus.collection_name,
             overwrite=overwrite,
             dim=config.embedding.dim)
@@ -161,8 +160,7 @@ class MilvusExecutor(Executor):
     def _get_index(self):
         config = self.config
         vector_store = MilvusVectorStore(
-            host = config.milvus.host,
-            port = config.milvus.port,
+            uri = f"http://{config.milvus.host}:{config.milvus.port}",
             collection_name = config.milvus.collection_name,
             dim=config.embedding.dim)
         self.index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
