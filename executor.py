@@ -4,6 +4,7 @@ import sys
 import re
 import os
 import argparse
+
 import requests
 from pathlib import Path
 from urllib.parse import urlparse
@@ -229,7 +230,6 @@ class PipelineExecutor(Executor):
             print('ZILLIZ_TOKEN 参数为空')
             exit()
         
-        self._initialize_pipeline()
         self.config = config
         self._debug = False
 
@@ -243,6 +243,7 @@ class PipelineExecutor(Executor):
 
         service_context = ServiceContext.from_defaults(llm=llm, embed_model=None)
         set_global_service_context(service_context)
+        self._initialize_pipeline(service_context)
 
         #rerank_k = config.rerankl
         #self.rerank_postprocessor = SentenceTransformerRerank(
@@ -251,7 +252,7 @@ class PipelineExecutor(Executor):
     def set_debug(self, mode):
         self._debug = mode
 
-    def _initialize_pipeline(self):
+    def _initialize_pipeline(self, service_context: ServiceContext):
         config = self.config
         try:
             self.index = ZillizCloudPipelineIndex(
@@ -259,6 +260,7 @@ class PipelineExecutor(Executor):
                 cluster_id=self.ZILLIZ_CLUSTER_ID,
                 token=self.ZILLIZ_TOKEN,
                 collection_name=config.pipeline.collection_name,
+                service_context=service_context,
              )
             if len(self._list_pipeline_ids()) == 0:
                 self.index.create_pipelines(
