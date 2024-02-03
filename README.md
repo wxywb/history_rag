@@ -9,7 +9,7 @@
 ## 运行本项目将会需要:
     获取OpenAI API Key 
     安装Milvus 2.3.3版本 或者 获取Zilliz Cloud账号
-    安装LlamaIndex 0.9.22版本
+    安装LlamaIndex
     安装Docker
     安装python3
 ## 更新
