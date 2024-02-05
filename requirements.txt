@@ -6,3 +6,4 @@ dashscope
 torch
 transformers
 pyyaml
+google-generativeai
