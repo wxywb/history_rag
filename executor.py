@@ -247,6 +247,7 @@ class PipelineExecutor(Executor):
             llm = OpenAI(api_base = api_base, temperature=config.llm.temperature, model=config.llm.name, max_tokens=2048)
 
         service_context = ServiceContext.from_defaults(llm=llm, embed_model=None)
+        self.service_context = service_context
         set_global_service_context(service_context)
         self._initialize_pipeline(service_context)
 
@@ -292,7 +293,7 @@ class PipelineExecutor(Executor):
             pipeline_ids = self._list_pipeline_ids()
             self._delete_pipeline_ids(pipeline_ids)
 
-            self._initialize_pipeline()
+            self._initialize_pipeline(self.service_context)
 
         if is_github_folder_url(path):
             filenames = get_github_repo_contents(path)
