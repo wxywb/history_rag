@@ -65,7 +65,7 @@ with gr.Blocks() as demo:
                  inputs=[gr.Dropdown(choices=query_tasks, label="选择命令", value="提问"),
                          gr.Textbox(label="问题")], outputs="text",
                  submit_btn="提交", clear_btn="清空")
-    with open("docs/web_ui.md", "r") as f:
+    with open("docs/web_ui.md", "r", encoding="utf-8") as f:
         article = f.read()
     gr.Markdown(article)
 
