@@ -129,7 +129,7 @@ class MilvusExecutor(Executor):
         embed_model = HuggingFaceEmbedding(model_name=config.embedding.name)
 
         # 使用Qwen 通义千问模型
-        if config.llm.name == "qwen":
+        if config.llm.name.find("qwen") != -1:
             llm = QwenUnofficial(temperature=config.llm.temperature, model=config.llm.name, max_tokens=2048)
         elif config.llm.name.find("gemini") != -1:
             llm = Gemini(temperature=config.llm.temperature, model_name=config.llm.name, max_tokens=2048)
@@ -256,7 +256,7 @@ class PipelineExecutor(Executor):
         self.config = config
         self._debug = False
 
-        if config.llm.name == "qwen":
+        if config.llm.name.find("qwen") != -1:
             llm = QwenUnofficial(temperature=config.llm.temperature, model=config.llm.name, max_tokens=2048)
         elif config.llm.name.find("gemini") != -1:
             llm = Gemini(model_name=config.llm.name, temperature=config.llm.temperature, max_tokens=2048)
