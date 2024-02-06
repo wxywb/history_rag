@@ -143,9 +143,9 @@ class MilvusExecutor(Executor):
 
         service_context = ServiceContext.from_defaults(llm=llm, embed_model=embed_model)
         set_global_service_context(service_context)
-        # rerank_k = config.milvus.rerank_topk
-        # self.rerank_postprocessor = SentenceTransformerRerank(
-        #     model=config.rerank.name, top_n=rerank_k)
+        rerank_k = config.milvus.rerank_topk
+        self.rerank_postprocessor = SentenceTransformerRerank(
+            model=config.rerank.name, top_n=rerank_k)
         self._milvus_client = None
         self._debug = False
         
