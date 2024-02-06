@@ -68,7 +68,6 @@ def is_github_folder_url(url):
 
 def get_branch_head_sha(owner, repo, branch):
     url = f"https://api.github.com/repos/{owner}/{repo}/git/ref/heads/{branch}"
-    print(f'getting sha from {url}')
     response = requests.get(url)
     data = response.json()
     sha = data['object']['sha']
@@ -82,7 +81,6 @@ def get_github_repo_contents(repo_url):
     folder_path = '/'.join(repo_url.split('/')[6:])
     sha = get_branch_head_sha(repo_owner, repo_name, branch)
     url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/git/trees/{sha}?recursive=1"
-    print(url)
     try:
         response = requests.get(url)
         if response.status_code == 200:
