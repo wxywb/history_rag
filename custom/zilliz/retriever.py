@@ -3,13 +3,14 @@ from typing import List, Optional
 
 import requests
 
-from llama_index.callbacks.base import CallbackManager
-from llama_index.constants import DEFAULT_SIMILARITY_TOP_K
-from llama_index.core.base_retriever import BaseRetriever
-from llama_index.indices.managed.zilliz.base import ZillizCloudPipelineIndex
-from llama_index.indices.query.schema import QueryBundle
-from llama_index.schema import NodeWithScore, QueryBundle, TextNode
-from llama_index.vector_stores.types import MetadataFilters
+from llama_index.core.callbacks import CallbackManager
+from llama_index.core.constants import DEFAULT_SIMILARITY_TOP_K
+from llama_index.core.retrievers import BaseRetriever
+from llama_index.indices.managed.zilliz import ZillizCloudPipelineIndex
+from llama_index.core import QueryBundle
+from llama_index.core.schema import NodeWithScore, TextNode
+from llama_index.core import QueryBundle
+from llama_index.core.vector_stores import MetadataFilters
 
 logger = logging.getLogger(__name__)
 

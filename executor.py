@@ -9,22 +9,23 @@ import requests
 from pathlib import Path
 from urllib.parse import urlparse
 
-from llama_index import ServiceContext, StorageContext
-from llama_index import set_global_service_context
-from llama_index import VectorStoreIndex, SimpleDirectoryReader, Document
-from llama_index.llms import OpenAI
-from llama_index.readers.file.flat_reader import FlatReader
-from llama_index.vector_stores import MilvusVectorStore
-from llama_index.embeddings import HuggingFaceEmbedding
-from llama_index.node_parser.text import SentenceWindowNodeParser
+from llama_index.core import ServiceContext, StorageContext
+from llama_index.core import set_global_service_context
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Document
+from llama_index.llms.openai import OpenAI
+from llama_index.readers.file import FlatReader
+from llama_index.vector_stores.milvus import MilvusVectorStore
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.core.node_parser import SentenceWindowNodeParser
 
-from llama_index.prompts import ChatPromptTemplate, ChatMessage, MessageRole, PromptTemplate
-from llama_index.postprocessor import MetadataReplacementPostProcessor
-from llama_index.postprocessor import SentenceTransformerRerank
-#from llama_index.indices import ZillizCloudPipelineIndex
+from llama_index.core import ChatPromptTemplate, PromptTemplate
+from llama_index.core.llms import ChatMessage, MessageRole
+from llama_index.core.postprocessor import MetadataReplacementPostProcessor
+from llama_index.core.postprocessor import SentenceTransformerRerank
+from llama_index.indices.managed.zilliz import ZillizCloudPipelineIndex
 from custom.zilliz.base import ZillizCloudPipelineIndex
-from llama_index.indices.query.schema import QueryBundle
-from llama_index.schema import BaseNode, ImageNode, MetadataMode
+from llama_index.core import QueryBundle
+from llama_index.core.schema import BaseNode, ImageNode, MetadataMode
 
 from custom.history_sentence_window import HistorySentenceWindowNodeParser
 from custom.llms.QwenLLM import QwenUnofficial

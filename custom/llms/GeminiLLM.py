@@ -4,22 +4,9 @@ from typing import (
     Sequence,
 )
 
-from llama_index.bridge.pydantic import Field
-from llama_index.llms.base import (
-    llm_chat_callback,
-    llm_completion_callback,
-)
-from llama_index.llms.llm import LLM
-from llama_index.llms.types import (
-    ChatMessage,
-    ChatResponse,
-    ChatResponseAsyncGen,
-    ChatResponseGen,
-    CompletionResponse,
-    CompletionResponseAsyncGen,
-    CompletionResponseGen,
-    LLMMetadata,
-)
+from llama_index.core.bridge.pydantic import Field
+from llama_index.core.llms import LLM
+from llama_index.core.llms import ChatMessage, ChatResponse, ChatResponseAsyncGen, ChatResponseGen, CompletionResponse, CompletionResponseAsyncGen, CompletionResponseGen, LLMMetadata
 
 DEFAULT_MODEL = "gemini-pro"
 
@@ -95,7 +82,6 @@ class Gemini(LLM):
         if response is not None:
             return response.text
 
-    @llm_completion_callback()
     def complete(self, prompt: str, **kwargs: Any) -> CompletionResponse:
         answer = self.call_with_prompt(prompt)
 
@@ -119,33 +105,26 @@ class Gemini(LLM):
 
     # 下面是实现Interface必要的方法
     # 但这里用不到，所以都是pass
-    @llm_completion_callback()
     async def astream_complete(self) -> CompletionResponseAsyncGen:
         pass
 
     async def _astream_chat(self) -> ChatResponseAsyncGen:
         pass
 
-    @llm_chat_callback()
     async def astream_chat(self) -> ChatResponseAsyncGen:
         pass
 
-    @llm_chat_callback()
     def chat(self, messages: Sequence[ChatMessage], **kwargs: Any) -> ChatResponse:
         pass
 
-    @llm_chat_callback()
     def stream_chat(self) -> ChatResponseGen:
         pass
 
-    @llm_completion_callback()
     def stream_complete(self) -> CompletionResponseGen:
         pass
 
-    @llm_chat_callback()
     async def achat(self) -> ChatResponse:
         pass
 
-    @llm_completion_callback()
     async def acomplete(self, prompt: str, **kwargs: Any) -> CompletionResponse:
         pass

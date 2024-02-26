@@ -10,12 +10,14 @@ from typing import Any, Dict, Optional, Sequence, Type
 
 import requests
 
-from llama_index.core.base_retriever import BaseRetriever
-from llama_index.data_structs.data_structs import IndexDict, IndexStructType
-from llama_index.indices.managed.base import BaseManagedIndex, IndexType
-from llama_index.schema import BaseNode, Document
-from llama_index.service_context import ServiceContext
-from llama_index.storage.storage_context import StorageContext
+from llama_index.core.retrievers import BaseRetriever
+from llama_index.core.data_structs import IndexDict
+from llama_index.core import IndexStructType
+from llama_index.core.indices.managed.base import BaseManagedIndex, IndexType
+from llama_index.core.schema import BaseNode
+from llama_index.core import Document
+from llama_index.core import ServiceContext
+from llama_index.core import StorageContext
 
 logger = logging.getLogger(__name__)
 
@@ -108,7 +110,7 @@ class ZillizCloudPipelineIndex(BaseManagedIndex):
 
 
         Example:
-        >>> from llama_index.indices import ZillizCloudPipelineIndex
+from llama_index.indices.managed.zilliz import ZillizCloudPipelineIndex
         >>> index = ZillizCloudPipelineIndex(
         >>>     project_id='YOUR_ZILLIZ_CLOUD_PROJECT_ID',
         >>>     cluster_id='YOUR_ZILLIZ_CLOUD_CLUSTER_ID',
@@ -212,7 +214,7 @@ class ZillizCloudPipelineIndex(BaseManagedIndex):
             A dictionary of pipeline ids for INGESTION, SEARCH, and DELETION pipelines.
 
         Example:
-            >>> from llama_index.indices import ZillizCloudPipelineIndex
+from llama_index.indices.managed.zilliz import ZillizCloudPipelineIndex
             >>> index = ZillizCloudPipelineIndex(
             >>>     project_id='YOUR_ZILLIZ_CLOUD_PROJECT_ID',
             >>>     cluster_id='YOUR_ZILLIZ_CLOUD_CLUSTER_ID',
@@ -336,7 +338,7 @@ class ZillizCloudPipelineIndex(BaseManagedIndex):
             An initialized ZillizCloudPipelineIndex
 
         Example:
-            >>> from llama_index.indices import ZillizCloudPipelineIndex
+from llama_index.indices.managed.zilliz import ZillizCloudPipelineIndex
             >>> index = ZillizCloudPipelineIndex.from_document_url(
             >>>     url='https://oss_bucket.test_doc.ext',
             >>>     project_id='YOUR_ZILLIZ_CLOUD_PROJECT_ID',
