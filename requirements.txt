@@ -1,4 +1,4 @@
-llama-index>=0.9.39
+llama-index==0.9.39
 pymilvus
 easydict
 dashscope
