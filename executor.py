@@ -29,7 +29,7 @@ from llama_index.schema import BaseNode, ImageNode, MetadataMode
 from custom.history_sentence_window import HistorySentenceWindowNodeParser
 from custom.llms.QwenLLM import QwenUnofficial
 from custom.llms.GeminiLLM import Gemini
-from custom.llms.Proxy_model import ProxyModel
+from custom.llms.proxy_model import ProxyModel
 from pymilvus import MilvusClient
 
 QA_PROMPT_TMPL_STR = (
