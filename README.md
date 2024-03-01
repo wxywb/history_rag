@@ -12,8 +12,8 @@
     安装LlamaIndex
     安装Docker
     安装python3
-## 更新
 - 6/11/2024: 升级到了LlamaIndex 0.10.x版本，并更新了pipeline，目前pipeline也加入了reranker功能。
+- 3/1/2024: [darius-gs](https://github.com/darius-gs)添加了对于使用本地LLM服务的支持（例如fastchat），使用请参考[文档](./docs/proxy_model.md)。
 - 2/5/2024: [BetterAndBetterII](https://github.com/BetterAndBetterII)添加了对于使用中转站的Gemini模型的支持，使用请参考[文档](./docs/Gemini.md)。
 - 1/30/2024: [taihaozesong](https://github.com/taihaozesong)添加了基于gradio的web ui界面。使用请参考[文档](./docs/web_ui.md)。
 - 1/29/2024: 针对windows环境，添加了一些[说明](./docs/windows.md)。
