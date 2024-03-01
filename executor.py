@@ -30,7 +30,7 @@ from llama_index.core.schema import BaseNode, ImageNode, MetadataMode
 from custom.history_sentence_window import HistorySentenceWindowNodeParser
 from custom.llms.QwenLLM import QwenUnofficial
 from custom.llms.GeminiLLM import Gemini
-
+from custom.llms.proxy_model import ProxyModel
 from pymilvus import MilvusClient
 
 QA_PROMPT_TMPL_STR = (
@@ -134,6 +134,10 @@ class MilvusExecutor(Executor):
             llm = QwenUnofficial(temperature=config.llm.temperature, model=config.llm.name, max_tokens=2048)
         elif config.llm.name.find("gemini") != -1:
             llm = Gemini(temperature=config.llm.temperature, model_name=config.llm.name, max_tokens=2048)
+        elif config.llm.proxy_model:
+            llm = ProxyModel(model_name=config.llm.name, api_base=config.llm.api_base, api_key=config.llm.api_key,
+                             temperature=config.llm.temperature,  max_tokens=2048)
+            print(f"使用{config.llm.name},PROXY_SERVER_URL为{config.llm.api_base},PROXY_API_KEY为{config.llm.api_key}")
         else:
             api_base = None
             if 'api_base' in config.llm:
