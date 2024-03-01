@@ -19,7 +19,9 @@ https://github.com/THUDM/ChatGLM2-6B?tab=readme-ov-file#api-%E9%83%A8%E7%BD%B2
 3. 执行python cli.py --cfg cfgs/config_proxy_model.yaml
 4. 其他步骤与原教程相同
    
-注：理论上只要兼容openai接口的大模型服务就可以，我使用chatchat和chatglm3-6b-32k以milvus模式进行测试无误  
+注：  
+1.理论上只要兼容openai接口的大模型服务就可以，我使用chatchat和chatglm3-6b-32k以milvus模式进行测试无误   
+2.注意两端的openai版本  
 
 问题：
 暂无
