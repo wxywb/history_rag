@@ -133,7 +133,7 @@ class MilvusExecutor(Executor):
             llm = QwenUnofficial(temperature=config.llm.temperature, model=config.llm.name, max_tokens=2048)
         elif config.llm.name.find("gemini") != -1:
             llm = Gemini(temperature=config.llm.temperature, model_name=config.llm.name, max_tokens=2048)
-        elif config.llm.proxy_model:
+        elif 'proxy_model' in config.llm:
             llm = ProxyModel(model_name=config.llm.name, api_base=config.llm.api_base, api_key=config.llm.api_key,
                              temperature=config.llm.temperature,  max_tokens=2048)
             print(f"使用{config.llm.name},PROXY_SERVER_URL为{config.llm.api_base},PROXY_API_KEY为{config.llm.api_key}")
