@@ -2,13 +2,14 @@
 from typing import Any, Callable, List, Optional, Sequence
 from bisect import bisect_right
 
-from llama_index.bridge.pydantic import Field
-from llama_index.callbacks.base import CallbackManager
-from llama_index.node_parser.interface import NodeParser
-from llama_index.node_parser.node_utils import build_nodes_from_splits
-from llama_index.node_parser.text.utils import split_by_sentence_tokenizer
-from llama_index.schema import BaseNode, Document, MetadataMode
-from llama_index.utils import get_tqdm_iterable
+from llama_index.core.bridge.pydantic import Field
+from llama_index.core.callbacks import CallbackManager
+from llama_index.core.node_parser import NodeParser
+from llama_index.core.node_parser.node_utils import build_nodes_from_splits
+from llama_index.core.node_parser.text.utils import split_by_sentence_tokenizer
+from llama_index.core.schema import BaseNode, MetadataMode
+from llama_index.core import Document
+from llama_index.core.utils import get_tqdm_iterable
 
 DEFAULT_WINDOW_SIZE = 3
 DEFAULT_WINDOW_METADATA_KEY = "window"
