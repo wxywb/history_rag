@@ -2,10 +2,10 @@ llama-index==0.10.12
 llama-index-vector-stores-milvus
 llama-index-embeddings-huggingface
 llama-index-indices-managed-zilliz
+llama-index-huggingface
 pymilvus
 easydict
 dashscope
-
 torch
 transformers
 pyyaml

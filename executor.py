@@ -9,7 +9,8 @@ import requests
 from pathlib import Path
 from urllib.parse import urlparse
 
-from llama_index.core import ServiceContext, StorageContext
+from llama_index.core import StorageContext
+from llama_index.core import Settings
 from llama_index.core import set_global_service_context
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Document
 from llama_index.llms.openai import OpenAI
@@ -23,7 +24,6 @@ from llama_index.core.llms import ChatMessage, MessageRole
 from llama_index.core.postprocessor import MetadataReplacementPostProcessor
 from llama_index.core.postprocessor import SentenceTransformerRerank
 from llama_index.indices.managed.zilliz import ZillizCloudPipelineIndex
-from custom.zilliz.base import ZillizCloudPipelineIndex
 from llama_index.core import QueryBundle
 from llama_index.core.schema import BaseNode, ImageNode, MetadataMode
 
@@ -140,8 +140,8 @@ class MilvusExecutor(Executor):
                 api_base = config.llm.api_base
             llm = OpenAI(api_base = api_base, temperature=config.llm.temperature, model=config.llm.name, max_tokens=2048)
 
-        service_context = ServiceContext.from_defaults(llm=llm, embed_model=embed_model)
-        set_global_service_context(service_context)
+        Settings.llm = llm
+        Settings.embed_model = embed_model
         rerank_k = config.milvus.rerank_topk
         self.rerank_postprocessor = SentenceTransformerRerank(
             model=config.rerank.name, top_n=rerank_k)
@@ -153,12 +153,13 @@ class MilvusExecutor(Executor):
 
     def build_index(self, path, overwrite):
         config = self.config
+        uri = f"http://{config.milvus.host}:{config.milvus.port}",
         vector_store = MilvusVectorStore(
             uri = f"http://{config.milvus.host}:{config.milvus.port}",
             collection_name = config.milvus.collection_name,
             overwrite=overwrite,
             dim=config.embedding.dim)
-        self._milvus_client = vector_store.milvusclient
+        self._milvus_client = vector_store._milvusclient
          
         if path.endswith('.txt'):
             if os.path.exists(path) is False:
@@ -187,9 +188,10 @@ class MilvusExecutor(Executor):
         vector_store = MilvusVectorStore(
             uri = f"http://{config.milvus.host}:{config.milvus.port}",
             collection_name = config.milvus.collection_name,
-            dim=config.embedding.dim)
+            dim=config.embedding.dim,
+            )
         self.index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
-        self._milvus_client = vector_store.milvusclient
+        self._milvus_client = vector_store._milvusclient
 
     def build_query_engine(self):
         config = self.config
@@ -267,32 +269,33 @@ class PipelineExecutor(Executor):
                 api_base = config.llm.api_base
             llm = OpenAI(api_base = api_base, temperature=config.llm.temperature, model=config.llm.name, max_tokens=2048)
 
-        service_context = ServiceContext.from_defaults(llm=llm, embed_model=None)
-        self.service_context = service_context
-        set_global_service_context(service_context)
-        self._initialize_pipeline(service_context)
+        Settings.llm = llm
+        self._initialize_pipeline()
 
-        #rerank_k = config.rerankl
-        #self.rerank_postprocessor = SentenceTransformerRerank(
-        #    model="BAAI/bge-reranker-large", top_n=rerank_k)
 
     def set_debug(self, mode):
         self._debug = mode
 
-    def _initialize_pipeline(self, service_context: ServiceContext):
+    def _initialize_pipeline(self):
         config = self.config
         try:
-            self.index = ZillizCloudPipelineIndex(
-                project_id = self.ZILLIZ_PROJECT_ID,
-                cluster_id=self.ZILLIZ_CLUSTER_ID,
-                token=self.ZILLIZ_TOKEN,
-                collection_name=config.pipeline.collection_name,
-                service_context=service_context,
-             )
-            if len(self._list_pipeline_ids()) == 0:
-                self.index.create_pipelines(
-                    metadata_schema={"digest_from":"VarChar"}, chunk_size=self.config.pipeline.chunk_size
+            pipeline_ids = self._list_pipeline_ids()
+            self.pipeline_ids = pipeline_ids
+            if len(pipeline_ids) == 0:
+                ZillizCloudPipelineIndex.create_pipelines(
+                    project_id = self.ZILLIZ_PROJECT_ID,
+                    cluster_id=self.ZILLIZ_CLUSTER_ID,
+                    api_key=self.ZILLIZ_TOKEN,
+                    collection_name=config.pipeline.collection_name,
+                    data_type = "doc",
+                    language='CHINESE',
+                    reranker= 'zilliz/bge-reranker-base',
+                    embedding='zilliz/bge-base-zh-v1.5',
+                    chunkSize=self.config.pipeline.chunk_size,
+                    metadata_schema={"digest_from":"VarChar"}
                 )
+                pipeline_ids = self._list_pipeline_ids()
+            self.index = ZillizCloudPipelineIndex(pipeline_ids=pipeline_ids, api_key=self.ZILLIZ_TOKEN)
         except Exception as e:
             print('(rag) zilliz pipeline 连接异常', str(e))
             exit()
@@ -322,7 +325,7 @@ class PipelineExecutor(Executor):
                 print(f'(rag) 正在构建索引 {url}')
                 self.build_index(url, False)  # already deleted original collection
         elif path.endswith('.txt'):
-            self.index.insert_doc_url(
+            self.index._insert_doc_url(
                 url=path,
                 metadata={"digest_from": HistorySentenceWindowNodeParser.book_name(os.path.basename(path))},
             )
@@ -379,17 +382,17 @@ class PipelineExecutor(Executor):
             "Content-Type": "application/json",
         }
 
-        collection_name = self.config.milvus.collection_name
+        collection_name = self.config.pipeline.collection_name
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
             raise RuntimeError(response.text)
         response_dict = response.json()
         if response_dict["code"] != 200:
             raise RuntimeError(response_dict)
-        pipeline_ids = []
+        pipeline_ids = {}
         for pipeline in response_dict['data']: 
             if collection_name in  pipeline['name']:
-                pipeline_ids.append(pipeline['pipelineId'])
+                pipeline_ids[pipeline['type']] = pipeline['pipelineId']
             
         return pipeline_ids
 
