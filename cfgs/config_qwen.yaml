@@ -10,7 +10,7 @@ milvus:
     host: "localhost" 
     port: "19530"
     collection_name: "history_rag"
-    retrieve_topk: 500
+    retrieve_topk: 100
     window_size: 4
     rerank_topk: 15
 pipeline:
