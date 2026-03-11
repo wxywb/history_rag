@@ -33,6 +33,20 @@ from custom.llms.GeminiLLM import Gemini
 from custom.llms.proxy_model import ProxyModel
 from pymilvus import MilvusClient
 
+
+def ensure_local_no_proxy():
+    """Avoid sending local Milvus traffic to an HTTP proxy."""
+    existing = os.getenv("NO_PROXY") or os.getenv("no_proxy") or ""
+    entries = [item.strip() for item in existing.split(",") if item.strip()]
+    required = ["127.0.0.1", "localhost"]
+    merged = entries[:]
+    for item in required:
+        if item not in merged:
+            merged.append(item)
+    value = ",".join(merged)
+    os.environ["NO_PROXY"] = value
+    os.environ["no_proxy"] = value
+
 QA_PROMPT_TMPL_STR = (
     "请你仔细阅读相关内容，结合历史资料进行回答,每一条史资料使用'出处：《书名》原文内容'的形式标注 (如果回答请清晰无误地引用原文,先给出回答，再贴上对应的原文，使用《书名》[]对原文进行标识),，如果发现资料无法得到答案，就回答不知道 \n"
     "搜索的相关历史资料如下所示.\n"
@@ -118,6 +132,7 @@ class Executor:
 
 class MilvusExecutor(Executor):
     def __init__(self, config):
+        ensure_local_no_proxy()
         self.index = None
         self.query_engine = None
         self.config = config
@@ -129,15 +144,15 @@ class MilvusExecutor(Executor):
 
         embed_model = HuggingFaceEmbedding(model_name=config.embedding.name)
 
-        # 使用Qwen 通义千问模型
-        if config.llm.name.find("qwen") != -1:
-            llm = QwenUnofficial(temperature=config.llm.temperature, model=config.llm.name, max_tokens=2048)
-        elif config.llm.name.find("gemini") != -1:
-            llm = Gemini(temperature=config.llm.temperature, model_name=config.llm.name, max_tokens=2048)
-        elif 'proxy_model' in config.llm:
+        # proxy_model has highest priority for OpenAI-compatible endpoints.
+        if 'proxy_model' in config.llm:
             llm = ProxyModel(model_name=config.llm.name, api_base=config.llm.api_base, api_key=config.llm.api_key,
                              temperature=config.llm.temperature,  max_tokens=2048)
             print(f"使用{config.llm.name},PROXY_SERVER_URL为{config.llm.api_base},PROXY_API_KEY为{config.llm.api_key}")
+        elif config.llm.name.find("qwen") != -1:
+            llm = QwenUnofficial(temperature=config.llm.temperature, model=config.llm.name, max_tokens=2048)
+        elif config.llm.name.find("gemini") != -1:
+            llm = Gemini(temperature=config.llm.temperature, model_name=config.llm.name, max_tokens=2048)
         else:
             api_base = None
             if 'api_base' in config.llm:
@@ -263,7 +278,11 @@ class PipelineExecutor(Executor):
         self.config = config
         self._debug = False
 
-        if config.llm.name.find("qwen") != -1:
+        if 'proxy_model' in config.llm:
+            llm = ProxyModel(model_name=config.llm.name, api_base=config.llm.api_base, api_key=config.llm.api_key,
+                             temperature=config.llm.temperature, max_tokens=2048)
+            print(f"使用{config.llm.name},PROXY_SERVER_URL为{config.llm.api_base},PROXY_API_KEY为{config.llm.api_key}")
+        elif config.llm.name.find("qwen") != -1:
             llm = QwenUnofficial(temperature=config.llm.temperature, model=config.llm.name, max_tokens=2048)
         elif config.llm.name.find("gemini") != -1:
             llm = Gemini(model_name=config.llm.name, temperature=config.llm.temperature, max_tokens=2048)
@@ -412,4 +431,3 @@ class PipelineExecutor(Executor):
             response = requests.delete(url, headers=headers)
             if response.status_code != 200:
                 raise RuntimeError(response.text)
-
