@@ -47,6 +47,26 @@ def ensure_local_no_proxy():
     os.environ["NO_PROXY"] = value
     os.environ["no_proxy"] = value
 
+
+def format_operation_result(ok, status, error=None, details=None):
+    return {
+        "ok": ok,
+        "status": status,
+        "error": error,
+        "details": details,
+    }
+
+
+def format_query_result(answer, sources=None, debug=None, status="success", error=None):
+    return {
+        "ok": error is None,
+        "status": status,
+        "answer": answer,
+        "sources": sources or [],
+        "debug": debug,
+        "error": error,
+    }
+
 QA_PROMPT_TMPL_STR = (
     "请你仔细阅读相关内容，结合历史资料进行回答,每一条史资料使用'出处：《书名》原文内容'的形式标注 (如果回答请清晰无误地引用原文,先给出回答，再贴上对应的原文，使用《书名》[]对原文进行标识),，如果发现资料无法得到答案，就回答不知道 \n"
     "搜索的相关历史资料如下所示.\n"
