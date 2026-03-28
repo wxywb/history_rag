@@ -11,6 +11,42 @@ build_tasks = ["构建索引", "删除索引"]
 query_tasks = ["提问", "提问+返回检索内容"]
 
 
+def default_app_state():
+    return {
+        "executor": None,
+        "mode": None,
+        "config_path": None,
+        "initialized": False,
+        "status": "未初始化",
+    }
+
+
+def ensure_ready_state(state):
+    if not state or not state.get("initialized") or state.get("executor") is None:
+        return False, "请先初始化系统后再执行该操作。"
+    return True, ""
+
+
+def render_sources_markdown(sources):
+    if not sources:
+        return "暂无证据卡片。"
+
+    blocks = []
+    for source in sources:
+        blocks.append(
+            "\n".join(
+                [
+                    f"### 证据 {source['rank']}: {source['title']}",
+                    f"`文件`: {source.get('file_name') or '未知'}",
+                    f"`分数`: {source.get('score') if source.get('score') is not None else 'N/A'}",
+                    "",
+                    source["content"],
+                ]
+            )
+        )
+    return "\n\n---\n\n".join(blocks)
+
+
 class GradioCommandLine(CommandLine):
     def __init__(self, cfg):
         super().__init__(cfg)
