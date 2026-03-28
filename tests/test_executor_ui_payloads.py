@@ -1,4 +1,9 @@
-from executor import format_operation_result, format_query_result
+from executor import (
+    extract_source_nodes,
+    format_exception_result,
+    format_operation_result,
+    format_query_result,
+)
 
 
 def test_format_query_result_includes_answer_sources_and_debug():
@@ -32,3 +37,51 @@ def test_format_operation_result_returns_error_payload():
         "error": "missing path",
         "details": None,
     }
+
+
+class DummyNode:
+    def __init__(self, text, metadata=None, score=0.5):
+        self.score = score
+        self.metadata = metadata or {}
+        self._text = text
+
+    def get_content(self, metadata_mode=None):
+        return self._text
+
+
+class DummyContext:
+    def __init__(self, node):
+        self.node = node
+        self.score = node.score
+
+
+def test_extract_source_nodes_normalizes_missing_metadata():
+    contexts = [
+        DummyContext(
+            DummyNode(
+                "原文片段",
+                metadata={"file_name": "baihuasanguozhi.txt", "digest_from": "三国志"},
+                score=0.88,
+            )
+        )
+    ]
+
+    sources = extract_source_nodes(contexts)
+
+    assert sources == [
+        {
+            "title": "三国志",
+            "content": "原文片段",
+            "score": 0.88,
+            "rank": 1,
+            "file_name": "baihuasanguozhi.txt",
+        }
+    ]
+
+
+def test_format_exception_result_returns_error_shape():
+    payload = format_exception_result("query failed", RuntimeError("boom"))
+
+    assert payload["ok"] is False
+    assert payload["status"] == "query failed"
+    assert payload["error"] == "boom"

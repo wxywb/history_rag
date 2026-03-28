@@ -67,6 +67,37 @@ def format_query_result(answer, sources=None, debug=None, status="success", erro
         "error": error,
     }
 
+
+def format_exception_result(status, exc):
+    return format_operation_result(False, status, error=str(exc))
+
+
+def normalize_question(question):
+    if question.endswith('?') or question.endswith('？'):
+        return question[:-1]
+    return question
+
+
+def extract_source_nodes(contexts):
+    sources = []
+    for index, context in enumerate(contexts, start=1):
+        node = getattr(context, "node", context)
+        metadata = getattr(node, "metadata", {}) or {}
+        title = metadata.get("digest_from") or metadata.get("file_name") or metadata.get("filename") or "未命名来源"
+        file_name = metadata.get("file_name") or metadata.get("filename")
+        score = getattr(context, "score", getattr(node, "score", None))
+        content = node.get_content(metadata_mode=MetadataMode.LLM)
+        sources.append(
+            {
+                "title": title,
+                "content": content,
+                "score": score,
+                "rank": index,
+                "file_name": file_name,
+            }
+        )
+    return sources
+
 QA_PROMPT_TMPL_STR = (
     "请你仔细阅读相关内容，结合历史资料进行回答,每一条史资料使用'出处：《书名》原文内容'的形式标注 (如果回答请清晰无误地引用原文,先给出回答，再贴上对应的原文，使用《书名》[]对原文进行标识),，如果发现资料无法得到答案，就回答不知道 \n"
     "搜索的相关历史资料如下所示.\n"
@@ -148,6 +179,56 @@ class Executor:
     
     def query(self, question):
         pass
+
+    def _ensure_query_engine(self):
+        if getattr(self, "query_engine", None) is None:
+            self.build_query_engine()
+
+    def _build_debug_payload(self, question, contexts):
+        return {
+            "mode": getattr(self, "_mode_name", "unknown"),
+            "question": question,
+            "retrieved_count": len(contexts),
+            "used_count": len(contexts),
+            "debug_enabled": bool(getattr(self, "_debug", False)),
+        }
+
+    def query_ui(self, question):
+        try:
+            normalized_question = normalize_question(question)
+            self._ensure_query_engine()
+            contexts = self.query_engine.retrieve(QueryBundle(normalized_question))
+            sources = extract_source_nodes(contexts)
+            response = self.query_engine.query(normalized_question)
+            debug = self._build_debug_payload(normalized_question, contexts)
+            return format_query_result(
+                str(response),
+                sources=sources,
+                debug=debug,
+            )
+        except Exception as exc:
+            return {
+                "ok": False,
+                "status": "query failed",
+                "answer": "",
+                "sources": [],
+                "debug": None,
+                "error": str(exc),
+            }
+
+    def build_index_ui(self, path, overwrite):
+        try:
+            self.build_index(path, overwrite)
+            return format_operation_result(True, "索引构建完成")
+        except Exception as exc:
+            return format_exception_result("build failed", exc)
+
+    def delete_file_ui(self, path):
+        try:
+            details = self.delete_file(path)
+            return format_operation_result(True, "删除完成", details=details)
+        except Exception as exc:
+            return format_exception_result("delete failed", exc)
  
 
 class MilvusExecutor(Executor):
@@ -155,6 +236,7 @@ class MilvusExecutor(Executor):
         ensure_local_no_proxy()
         self.index = None
         self.query_engine = None
+        self._mode_name = "milvus"
         self.config = config
         self.node_parser = HistorySentenceWindowNodeParser.from_defaults(
             sentence_splitter=lambda text: re.findall("[^,.;。？！]+[,.;。？！]?", text),
@@ -260,15 +342,20 @@ class MilvusExecutor(Executor):
         if self._milvus_client is None:
             self._get_index()
         num_entities_prev = self._milvus_client.query(collection_name='history_rag',filter="",output_fields=["count(*)"])[0]["count(*)"]
-        res = self._milvus_client.delete(collection_name=config.milvus.collection_name, filter=f"file_name=='{path}'")
+        self._milvus_client.delete(collection_name=config.milvus.collection_name, filter=f"file_name=='{path}'")
         num_entities = self._milvus_client.query(collection_name='history_rag',filter="",output_fields=["count(*)"])[0]["count(*)"]
         print(f'(rag) 现有{num_entities}条，删除{num_entities_prev - num_entities}条数据')
+        return {
+            "deleted_count": num_entities_prev - num_entities,
+            "remaining_count": num_entities,
+        }
     
     def query(self, question):
         if self.index is None:
             self._get_index()
-        if question.endswith('?') or question.endswith('？'):
-            question = question[:-1]
+        if self.query_engine is None:
+            self.build_query_engine()
+        question = normalize_question(question)
         if self._debug is True:
             contexts = self.query_engine.retrieve(QueryBundle(question))
             for i, context in enumerate(contexts): 
@@ -281,6 +368,8 @@ class MilvusExecutor(Executor):
 
 class PipelineExecutor(Executor):
     def __init__(self, config):
+        self.query_engine = None
+        self._mode_name = "pipeline"
         self.ZILLIZ_CLUSTER_ID = os.getenv("ZILLIZ_CLUSTER_ID")
         self.ZILLIZ_TOKEN = os.getenv("ZILLIZ_TOKEN")
         self.ZILLIZ_PROJECT_ID = os.getenv("ZILLIZ_PROJECT_ID") 
@@ -396,17 +485,20 @@ class PipelineExecutor(Executor):
     def delete_file(self, path):
         config = self.config
         if self._milvus_client is None:
-            self._get_index()
+            self._initialize_pipeline()
         num_entities_prev = self._milvus_client.query(collection_name='history_rag',filter="",output_fields=["count(*)"])[0]["count(*)"]
-        res = self._milvus_client.delete(collection_name=config.milvus.collection_name, filter=f"doc_name=='{path}'")
+        self._milvus_client.delete(collection_name=config.pipeline.collection_name, filter=f"doc_name=='{path}'")
         num_entities = self._milvus_client.query(collection_name='history_rag',filter="",output_fields=["count(*)"])[0]["count(*)"]
         print(f'(rag) 现有{num_entities}条，删除{num_entities_prev - num_entities}条数据')
+        return {
+            "deleted_count": num_entities_prev - num_entities,
+            "remaining_count": num_entities,
+        }
 
     def query(self, question):
-        if self.index is None:
-            self.get_index()
-        if question.endswith("?") or question.endswith("？"):
-            question = question[:-1]
+        if self.query_engine is None:
+            self.build_query_engine()
+        question = normalize_question(question)
         if self._debug is True:
             contexts = self.query_engine.retrieve(QueryBundle(question))
             for i, context in enumerate(contexts): 
