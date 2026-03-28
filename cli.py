@@ -4,11 +4,38 @@ from executor import PipelineExecutor
 import yaml
 from easydict import EasyDict
 import argparse
+import os
 
 def read_yaml_config(file_path):
     with open(file_path, "r") as file:
         config_data = yaml.safe_load(file)
     return EasyDict(config_data)
+
+
+def requires_openai_api_key(conf):
+    llm_name = str(conf.llm.get('name', '')).lower()
+    if 'proxy_model' in conf.llm:
+        return False
+    if 'qwen' in llm_name or 'gemini' in llm_name:
+        return False
+    return True
+
+
+def check_required_env(conf, mode):
+    missing = []
+    if requires_openai_api_key(conf) and not os.getenv("OPENAI_API_KEY"):
+        missing.append("OPENAI_API_KEY")
+
+    if mode == "pipeline":
+        for var in ["ZILLIZ_PROJECT_ID", "ZILLIZ_TOKEN", "ZILLIZ_CLUSTER_ID"]:
+            if not os.getenv(var):
+                missing.append(var)
+
+    if missing:
+        print(f"(rag) 启动失败，缺少环境变量: {', '.join(missing)}")
+        print("(rag) 请先在当前终端执行 export 后再重启 python cli.py")
+        return False
+    return True
 
 class CommandLine():
     def __init__(self, config_path):
@@ -27,6 +54,8 @@ class CommandLine():
             print('(rag) 选择[milvus|pipeline]方案')
             mode = input('(rag) ')
             if mode == 'milvus':
+                if not check_required_env(conf, mode='milvus'):
+                    continue
                 self._executor = MilvusExecutor(conf) 
                 print('(rag) milvus模式已选择')
                 print('  1.使用`build data/history_24/baihuasanguozhi.txt`来进行知识库构建。')
@@ -35,6 +64,8 @@ class CommandLine():
                 self._mode = 'milvus'
                 break
             elif mode == 'pipeline':
+                if not check_required_env(conf, mode='pipeline'):
+                    continue
                 self._executor = PipelineExecutor(conf)
                 print('(rag) pipeline模式已选择, 使用`build https://raw.githubusercontent.com/wxywb/history_rag/master/data/history_24/baihuasanguozhi.txt`来进行知识库构建。')
                 print('  1.使用`build https://raw.githubusercontent.com/wxywb/history_rag/master/data/history_24/baihuasanguozhi.txt`来进行知识库构建。')
@@ -118,4 +149,3 @@ if __name__ == '__main__':
 
     cli = CommandLine(args.cfg)
     cli.run()
-

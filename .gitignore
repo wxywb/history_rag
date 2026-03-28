@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+db/volumes/
+.worktrees/
